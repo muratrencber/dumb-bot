@@ -4,6 +4,8 @@ const cikralayici=require("./cikralayici.js");
 const cna = require("./cna.js")
 const ehb=require("./ehb.js");
 const maxcontenders = 128;
+const umut_id=342611315526729739;
+const main_channel_id=301768467365756928;
 
 let channel = null;
 
@@ -19,6 +21,8 @@ client.on("ready", ()=>{
 client.on("guildMemberUpdate", (oldMember, newMember)=>
 {
     console.log(oldMember.id);
+	if(oldMember.id == umut_id && oldMember.nickname != newMember.nickname)
+		SendMessage("mal umut", client.channels.fetch(main_channel_id));
 })
 function CheckForCommands(message)
 {
