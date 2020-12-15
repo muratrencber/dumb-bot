@@ -21,7 +21,7 @@ client.on("ready", ()=>{
 client.on("guildMemberUpdate", (oldMember, newMember)=>
 {
     console.log(oldMember.id);
-	if(oldMember.id == umut_id && oldMember.nickname != newMember.nickname)
+	if(oldMember.id == umut_id && oldMember.displayName != newMember.displayName && newMember.nickname != null)
 		SendMessage("mal umut", client.channels.fetch(main_channel_id));
 })
 function CheckForCommands(message)
