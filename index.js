@@ -22,7 +22,7 @@ client.on("guildMemberUpdate", (oldMember, newMember)=>
 {
     console.log(oldMember.id);
 	if(oldMember.displayName != newMember.displayName && newMember.nickname != null)
-		SendMessage("boş", guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0););
+		SendMessage("boş", guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0));
 })
 function CheckForCommands(message)
 {
