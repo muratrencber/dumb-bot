@@ -1,4 +1,4 @@
-const url = process.env.URL
+const url = process.env.URL;
 let imageLinks = [url+"/can_media/can-kutuphanesi/5.jpg",
 url+"/can_media/6.jpg",
 url+"/can_media/IMG_188020(1).JPG",
