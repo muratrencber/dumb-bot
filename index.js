@@ -4,8 +4,7 @@ const cikralayici=require("./cikralayici.js");
 const cna = require("./cna.js")
 const ehb=require("./ehb.js");
 const maxcontenders = 128;
-const umut_id=342611315526729739;
-const main_channel_id=301768467365756928;
+const umut_id=process.env.UMUT_ID;
 
 let channel = null;
 
@@ -21,8 +20,8 @@ client.on("ready", ()=>{
 client.on("guildMemberUpdate", (oldMember, newMember)=>
 {
     console.log(oldMember.id);
-	if(oldMember.displayName != newMember.displayName && newMember.nickname != null)
-		SendMessage("boş", oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0));
+	if(oldMember.id==umut_id&& oldMember.displayName != newMember.displayName && newMember.nickname != null)
+		SendMessage("mal umut", oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0));
 })
 function CheckForCommands(message)
 {
