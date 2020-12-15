@@ -1,7 +1,7 @@
 const url = process.env.URL;
 let imageLinks = [url+"/can_media/5.jpg",
 url+"/can_media/6.jpg",
-url+"/can_media/IMG_188020(1).JPG",
+url+"/can_media/IMG_1880.JPG",
 url+"/can_media/Untitled-1.jpg",
 url+"/can_media/Untitled-3.jpg", 
 url+"/can_media/15122001.png"];
