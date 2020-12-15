@@ -1,9 +1,9 @@
-let imageLinks = ["/can_media/can-kutuphanesi/5.jpg",
-"/can_media/6.jpg",
-"/can_media/IMG_188020(1).JPG",
-"/can_media/Untitled-1.jpg",
-"/can_media/can-kutuphanesi/Untitled-3.jpg", 
-"/can_media/can-kutuphanesi/15122001.png"];
+let imageLinks = ["./can_media/can-kutuphanesi/5.jpg",
+"./can_media/6.jpg",
+"./can_media/IMG_188020(1).JPG",
+"./can_media/Untitled-1.jpg",
+"./can_media/can-kutuphanesi/Untitled-3.jpg", 
+"./can_media/can-kutuphanesi/15122001.png"];
 let shuffledArray= imageLinks;
 let remainingImages = 0;
 module.exports=
