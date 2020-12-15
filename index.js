@@ -7,7 +7,7 @@ const maxcontenders = 128;
 
 let channel = null;
 
-client.login("Nzg3MzQ5MzA1NDgwNTc3MDU1.X9TqLg.S8WMAhaWy1g3XxGT4SVtVelefC0");
+client.login(process.env.BOT_TOKEN);
 client.on("message", message=>{
     channel = message.channel;
     CheckForCommands(message.content, message.channel);
