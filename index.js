@@ -16,6 +16,10 @@ client.on("ready", ()=>{
     client.user.setPresence({status:"online"});
     client.user.setActivity('!yardım', {type:"PLAYING"});
 });
+client.on("guildMemberUpdate", (oldMember, newMember)=>
+{
+    console.log(oldMember.id);
+})
 function CheckForCommands(message)
 {
     if(message.charAt(0) != "!")
