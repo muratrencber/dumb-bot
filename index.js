@@ -20,8 +20,13 @@ client.on("ready", ()=>{
 client.on("guildMemberUpdate", (oldMember, newMember)=>
 {
     console.log(oldMember.id);
-	if(oldMember.id==umut_id&& oldMember.displayName != newMember.displayName && newMember.nickname != null)
-		SendMessage("mal umut", oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0));
+    if(oldMember.id==umut_id&& oldMember.displayName != newMember.displayName && newMember.nickname != null)
+    {
+        let targetChannel = oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.name =="dumb-bot");
+        if(targetChannel==null)
+            targetChannel = oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0);
+		SendMessage("mal umut", targetChannel);
+    }
 })
 function CheckForCommands(message)
 {
