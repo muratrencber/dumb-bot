@@ -17,7 +17,7 @@ client.on("ready", ()=>{
     client.user.setPresence({status:"online"});
     client.user.setActivity('!yardım', {type:"PLAYING"});
 });
-client.on("guildMemberUpdate", (oldMember, newMember)=>
+/*client.on("guildMemberUpdate", (oldMember, newMember)=>
 {
     console.log(oldMember.id);
     if(oldMember.id==umut_id&& oldMember.displayName != newMember.displayName && newMember.nickname != null)
@@ -27,7 +27,7 @@ client.on("guildMemberUpdate", (oldMember, newMember)=>
             targetChannel = oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0);
 		SendMessage("mal umut", targetChannel);
     }
-})
+})*/
 function CheckForCommands(message)
 {
     if(message.charAt(0) != "!")
