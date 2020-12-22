@@ -236,8 +236,8 @@ client.on("message", async mess=>{
         let args1 = afterCommand.split('" ');
         if(args1.length==2)
         {
-            let name = args1[0].replace('"',"");
-            if(Contenders.findOne({where: {name: name}}))
+            let contenderName = args1[0].replace('"',"");
+            if(Contenders.findOne({where: {name: contenderName}}))
             {
                 sentMessage = "Böyle bir savaşçı zaten var!";
             }
@@ -257,7 +257,7 @@ client.on("message", async mess=>{
                         await  Contenders.create(
                             {
                                 key: keyName,
-                                name: name,
+                                name: contenderName,
                                 strength: strength,
                                 intelligence: intelligence,
                                 agility: agility,
