@@ -117,9 +117,9 @@ client.on("message", async mess=>{
                 contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
             sentMessage = await MakeVersus(contender1, contender2);
         }
-        else if(afterCommand.toLowerCase() == "öneri")
+        else if(afterCommand.toLowerCase() == "istek")
         {
-            sentMessage = "Öneriler için: https://mrtrncbr-dumbbot-requests.herokuapp.com/istek";
+            sentMessage = "İstek katılımcı/eşyalar için: https://mrtrncbr-dumbbot-requests.herokuapp.com/istek";
         }
         else
         {
@@ -210,7 +210,7 @@ function ReassembleWords(wordArray, startIndex = 0)
 }
 function ShowHelp()
 {
-    return helpText = "```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya 'Evet, hayır, belki' diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs öneri -> Öneri sitesine yönlendirir.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <savaşçıismi> -> Savaşçıyla ilgili ayrıntılı bilgiler.\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır (Sadece yöneticiler tarafından uygulanabilir).```";
+    return helpText = "```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya 'Evet, hayır, belki' diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <savaşçıismi> -> Savaşçıyla ilgili ayrıntılı bilgiler.\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır (Sadece yöneticiler tarafından uygulanabilir).```";
 }
 function SendMessage(message, channel)
 {
