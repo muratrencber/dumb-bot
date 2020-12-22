@@ -1,2 +1,2 @@
 worker: node index.js
-web: python sample_app.py
+web: python requester.py
