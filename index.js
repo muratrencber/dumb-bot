@@ -237,7 +237,10 @@ client.on("message", async mess=>{
         if(args1.length==2)
         {
             let contenderName = args1[0].replace('"',"");
-            if(Contenders.findOne({where: {name: contenderName}}))
+            console.log("savaşçı ismi:"+contenderName);
+            let existingContender=await Contenders.findOne({where: {name: contenderName}});
+            console.log(existingContender);
+            if(existingContender)
             {
                 sentMessage = "Böyle bir savaşçı zaten var!";
             }
