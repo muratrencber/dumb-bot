@@ -1,1 +1,1 @@
-web: python requester.py
+worker: node index.js
