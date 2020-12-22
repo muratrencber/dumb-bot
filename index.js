@@ -179,6 +179,124 @@ client.on("message", async mess=>{
         }
         sentMessage="İşlem bitti.";
     }
+    else if(command=="eşyaekle"&& mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let args1 = afterCommand.split('" ');
+        console.log(args1.length);
+        if(args1.length==3)
+        {
+            let keyName = args1[0].replace('"',"").replace(" ","");
+            if(Items.findOne({where: {key: keyName}}))
+            {
+                sentMessage = "Böyle bir eşya zaten var!";
+            }
+            else
+            {
+                let name = args1[1].replace('"',"");
+                let otherArgs = args1[2].split[" "];
+                if(otherArgs.length == 5)
+                {
+                    try
+                    {
+                        let strength = parseInt(otherArgs[0]);
+                        let intelligence = parseInt(otherArgs[1]);
+                        let agility = parseInt(otherArgs[2]);
+                        let charisma = parseInt(otherArgs[3]);
+                        let health = parseInt(otherArgs[4]);
+
+                        await Items.create(
+                            {
+                                key: keyName,
+                                name: name,
+                                strength: strength,
+                                intelligence: intelligence,
+                                agility: agility,
+                                charisma: charisma,
+                                health: health
+                            }
+                        );
+                        sentMessage="Eşya başarıyla oluşturuldu :partying_face:"
+                    }
+                    catch(e){sentMessage="Bir şeyler yanlış gitti :("}
+                }
+                else
+                {
+                    sentMessage="Bir sıkıntı çıktı! Girdilerinde hata olabilir."
+                }
+            }
+        }
+        else
+        {
+            sentMessage=":thinking: Komutu yarım bırakmış gibisin, girdilerini kontrol et."
+        }
+        
+    }
+    else if(command=="savaşçıekle"&& mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let args1 = afterCommand.split('" ');
+        if(args1.length==2)
+        {
+            let name = args1[0].replace('"',"");
+            if(Contenders.findOne({where: {name: name}}))
+            {
+                sentMessage = "Böyle bir savaşçı zaten var!";
+            }
+            else
+            {
+                let otherArgs = args1[1].split[" "];
+                if(otherArgs.length == 5)
+                {
+                    try
+                    {
+                        let strength = parseInt(otherArgs[0]);
+                        let intelligence = parseInt(otherArgs[1]);
+                        let agility = parseInt(otherArgs[2]);
+                        let charisma = parseInt(otherArgs[3]);
+                        let health = parseInt(otherArgs[4]);
+
+                        await  Contenders.create(
+                            {
+                                key: keyName,
+                                name: name,
+                                strength: strength,
+                                intelligence: intelligence,
+                                agility: agility,
+                                charisma: charisma,
+                                health: health
+                            }
+                        );
+                        sentMessage="Savaşçı başarıyla oluşturuldu :party:"
+                    }
+                    catch(e){sentMessage="Bir şeyler yanlış gitti :("}
+                }
+                else
+                {
+                    sentMessage="Bir sıkıntı çıktı! Girdilerinde hata olabilir."
+                }
+            }
+        }
+        else
+        {
+            sentMessage=":thinking: Komutu yarım bırakmış gibisin, girdilerini kontrol et."
+        }
+        
+    }
+    else if(command=="sil"&& mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let rowCount = await Contenders.destroy({ where: { name: tagName } });
+        if (!rowCount)
+        {
+            rowCount = await Items.destroy({ where: { name: tagName } });
+            if(!rowCount)
+                sentMessage="Böyle bir obje yok!"
+            else
+                sentMessage="Eşya başarıyla silindi."
+        }
+        else
+        {
+            sentMessage="Savaşçı başarıyla silindi."
+        }
+    }
     if(sentMessage!="")
         SendMessage(sentMessage, channel);
 })
