@@ -249,17 +249,22 @@ client.on("message", async mess=>{
                 let otherArgs = args1[1].split(" ");
                 if(otherArgs.length == 5)
                 {
+                    console.log("otherargslengths...");
                     try
                     {
                         let strength = parseInt(otherArgs[0]);
+                        console.log(strength);
                         let intelligence = parseInt(otherArgs[1]);
+                        console.log(intelligence);
                         let agility = parseInt(otherArgs[2]);
+                        console.log(agility);
                         let charisma = parseInt(otherArgs[3]);
+                        console.log(charisma);
                         let health = parseInt(otherArgs[4]);
+                        console.log(health);
 
                         await  Contenders.create(
                             {
-                                key: keyName,
                                 name: contenderName,
                                 strength: strength,
                                 intelligence: intelligence,
