@@ -111,11 +111,18 @@ client.on("message", async mess=>{
         let contenders = afterCommand.split(";");
         if(words.length==1)
         {
-            let contender1 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
-            let contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
-            while(contender2.name == contender1.name)
-                contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
-            sentMessage = await MakeVersus(contender1, contender2);
+            if(afterCommand.toLowerCase = "öneri")
+            {
+                sentMessage = "Öneriler için: https://mrtrncbr-dumbbot-requests.herokuapp.com/istek";
+            }
+            else
+            {
+                let contender1 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+                let contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+                while(contender2.name == contender1.name)
+                    contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+                sentMessage = await MakeVersus(contender1, contender2);
+            }
         }
         else
         {
@@ -206,7 +213,7 @@ function ReassembleWords(wordArray, startIndex = 0)
 }
 function ShowHelp()
 {
-    return helpText = "```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya 'Evet, hayır, belki' diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <savaşçıismi> -> Savaşçıyla ilgili ayrıntılı bilgiler.\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır (Sadece yöneticiler tarafından uygulanabilir).```";
+    return helpText = "```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya 'Evet, hayır, belki' diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs öneri -> Öneri sitesine yönlendirir.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <savaşçıismi> -> Savaşçıyla ilgili ayrıntılı bilgiler.\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır (Sadece yöneticiler tarafından uygulanabilir).```";
 }
 function SendMessage(message, channel)
 {
