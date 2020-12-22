@@ -20,6 +20,7 @@ def show_home():
     return template("form", data=all_data)
 
 @route("/")
+def main():
     redirect("/istek")
 
 @route("/ilet", method="POST")
