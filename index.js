@@ -1,5 +1,9 @@
 const Discord=require("discord.js");
+const Sequelize=require("sequelize");
+
 const client=new Discord.Client();
+client.login(process.env.BOT_TOKEN);
+
 const cikralayici=require("./cikralayici.js");
 const cna = require("./cna.js")
 const ehb=require("./ehb.js");
@@ -8,28 +12,77 @@ const umut_id=process.env.UMUT_ID;
 
 let channel = null;
 
-client.login(process.env.BOT_TOKEN);
-client.on("message", message=>{
-    channel = message.channel;
-    CheckForCommands(message.content, message.channel);
-})
-client.on("ready", ()=>{
-    client.user.setPresence({status:"online"});
-    client.user.setActivity('!yardım', {type:"PLAYING"});
+const sequelize = new Sequelize("database", "username", "password", {
+    host: "localhost",
+    dialect: "sqlite",
+    logging: false,
+    storage: "database.sqlite"
 });
-/*client.on("guildMemberUpdate", (oldMember, newMember)=>
-{
-    console.log(oldMember.id);
-    if(oldMember.id==umut_id&& oldMember.displayName != newMember.displayName && newMember.nickname != null)
-    {
-        let targetChannel = oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.name =="dumb-bot");
-        if(targetChannel==null)
-            targetChannel = oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0);
-		SendMessage("mal umut", targetChannel);
+
+const Contenders = sequelize.define("contenders",{
+    name: {
+        type: Sequelize.STRING,
+        unique: true,
+    },
+    health:{   
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
+    strength:{   
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
+    intelligence:{  
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
+    agility:{   
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
+    charisma:{   
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
+    item:{   
+        type: Sequelize.STRING,
     }
-})*/
-function CheckForCommands(message)
-{
+});
+const Items = sequelize.define("items", {
+    key: {
+        type: Sequelize.STRING,
+        unique: true
+    },
+    name: {
+        type: Sequelize.STRING,
+        unique: true,
+    },
+    strength:{   
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
+    intelligence:{  
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
+    agility:{   
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
+    charisma:{   
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    }
+})
+
+client.once("ready", ()=>{
+    Contenders.sync();
+    Items.sync();
+});
+
+client.on("message", async mess=>{
+    channel = mess.channel;
+    const message = mess.content;
     if(message.charAt(0) != "!")
         return;
     let cleanMessage = message.substring(1);
@@ -56,34 +109,104 @@ function CheckForCommands(message)
     }
     else if(command=="vs"){
         let contenders = afterCommand.split(";");
-        if(contenders.length < 2)
-            return;
-        else if(contenders.length > maxcontenders)
-            sentMessage="Çok fazla katılımcı var! _(Maksimum katılımcı sayısı: "+maxcontenders+")_";
+        if(words.length==1)
+        {
+            let contender1 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+            let contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+            while(contender2.name == contender1.name)
+                contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+            sentMessage = await MakeVersus(contender1, contender2);
+        }
         else
         {
-            let winnerIndex = Math.floor(Math.random()*contenders.length);
-            let winner = contenders[winnerIndex];
-            sentMessage="Kazanan: "+winner;
+            if(contenders.length < 2)
+                return;
+            else if(contenders.length > maxcontenders)
+                sentMessage="Çok fazla katılımcı var! _(Maksimum katılımcı sayısı: "+maxcontenders+")_";
+            else
+            {
+                let winnerIndex = Math.floor(Math.random()*contenders.length);
+                let winner = contenders[winnerIndex];
+                sentMessage="Kazanan: "+winner;
+            }
         }
+    }
+    else if(command=="savaşçılar")
+    {
+        const contList = await Contenders.findAll({attributes: ["name"]});
+        sentMessage = ("SAVAŞÇILAR\n"+ contList.map(c=>c.name).join("\n")) || "Savaşçı yok.";
+    }
+    else if(command=="ayrıntılar")
+    {
+        let targetContender = await Contenders.findOne({where: {name: afterCommand}});
+        if(targetContender != null)
+        {
+            let targetItem = await Items.findOne({where: {key: targetContender.item}});
+            let itemName = targetItem != null ? targetItem.name : "Yok";
+            sentMessage="İsim: "+targetContender.name+"\n"+
+            "Sağlık: "+targetContender.health+"\n"+
+            "Güç: "+targetContender.strength+"\n"+
+            "Zeka: "+targetContender.intelligence+"\n"+
+            "Karizma: "+targetContender.charisma+"\n"+
+            "Eşya: "+itemName;
+        }
+    }
+    else if(command=="eşyalar")
+    {
+        const contList = await Items.findAll({attributes: ["name"]});
+        sentMessage = ("EŞYALAR\n"+ contList.map(c=>c.name).join("\n")) || "Eşya yok.";
+    }
+    else if(command=="eşyaata" && mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let itemList = await Items.findAll({attributes: ["key"]});
+        shuffledArray = itemList;
+        for (var i = shuffledArray.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = shuffledArray[i];
+            shuffledArray[i] = shuffledArray[j];
+            shuffledArray[j] = temp;
+        }
+        let contenderList = await Contenders.findAll({attributes: ["name"]});
+        for(let i =0; i < Math.min(contenderList.length, itemList.length); i++)
+        {
+            let contenderName = contenderList[i].name;
+            let itemKey=itemList[i].key;
+            await Contenders.update({item:itemKey}, {where: {name: contenderName}});
+        }
+        sentMessage="İşlem bitti.";
     }
     if(sentMessage!="")
         SendMessage(sentMessage, channel);
-}
+})
+client.on("ready", ()=>{
+    client.user.setPresence({status:"online"});
+    client.user.setActivity('!yardım', {type:"PLAYING"});
+});
+/*client.on("guildMemberUpdate", (oldMember, newMember)=>
+{
+    console.log(oldMember.id);
+    if(oldMember.id==umut_id&& oldMember.displayName != newMember.displayName && newMember.nickname != null)
+    {
+        let targetChannel = oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.name =="dumb-bot");
+        if(targetChannel==null)
+            targetChannel = oldMember.guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0);
+		SendMessage("mal umut", targetChannel);
+    }
+})*/
 function ReassembleWords(wordArray, startIndex = 0)
 {
     let str = "";
     for(let i = startIndex; i<wordArray.length; i++)
     {
         str += wordArray[i];
-        if(startIndex < wordArray.length-1)
+        if(i < wordArray.length-1)
             str+=" ";
     }
     return str;
 }
 function ShowHelp()
 {
-    return helpText = "```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya 'Evet, hayır, belki' diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.```";
+    return helpText = "```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya 'Evet, hayır, belki' diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <savaşçıismi> -> Savaşçıyla ilgili ayrıntılı bilgiler.\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır (Sadece yöneticiler tarafından uygulanabilir).```";
 }
 function SendMessage(message, channel)
 {
@@ -92,4 +215,70 @@ function SendMessage(message, channel)
         channel.send(message);
         channel.stopTyping(true);
     }, (1+(Math.random()*0.5))*1000);
+}
+
+async function MakeVersus(contender1, contender2)
+{
+    let message = contender1.name+" vs "+contender2.name +"\n";
+    let stats1 ={str: 0, agi:0, int:0, char:0, hp:0};
+    stats1.str = contender1.strength;
+    stats1.agi = contender1.agility;
+    stats1.int = contender1.intelligence;
+    stats1.char = contender1.charisma;
+    stats1.hp = contender1.health;
+    let item1 = await Items.findOne({where: {key: contender1.item}});
+    if(item1 != null)
+    {
+        stats1.str += item1.strength;
+        stats1.agi += item1.agility;
+        stats1.int += item1.intelligence;
+        stats1.char += item1.charisma;
+        stats1.hp += item1.health;
+    }
+    let stats2 ={str: 0, agi:0, int:0, char:0, hp:0};
+    stats2.str = contender2.strength;
+    stats2.agi = contender2.agility;
+    stats2.int = contender2.intelligence;
+    stats2.char = contender2.charisma;
+    stats2.hp = contender2.health;
+    let item2 = await Items.findOne({where: {key: contender2.item}});
+    if(item2 != null)
+    {
+        stats2.str += item2.strength;
+        stats2.agi += item2.agility;
+        stats2.int += item2.intelligence;
+        stats2.char += item2.charisma;
+        stats2.hp += item2.health;
+    }
+    let turn = Math.floor(Math.random()*2);
+    while(stats1.hp > 0 && stats2.hp > 0)
+    {
+        turn = turn%2;
+        if(turn == 0)
+        {
+            let damage = stats1.strength + Math.floor(Math.random()*13);
+            let defence = Math.ceil((stats2.agility*stats2.agility+stats2.charisma*stats2.charisma+stats2.intelligence*stats2.intelligence)/(stats2.agility, stats2.charisma, stats2.intelligence));
+            damage = Math.max(damage-defence, 0);
+            stats2.hp -= damage;
+        }
+        else
+        {
+            let damage = stats2.strength + Math.floor(Math.random()*13);
+            let defence = Math.ceil((stats1.agility*stats1.agility+stats1.charisma*stats1.charisma+stats1.intelligence*stats1.intelligence)/(stats1.agility, stats1.charisma, stats1.intelligence));
+            damage = Math.max(damage-defence, 0);
+            stats1.hp -= damage;
+        }
+        turn++;
+    }
+    if(stats1.hp <=0 && stats2.hp <= 0)
+    {
+        message+="SONUÇ: Berabere :(";
+        return message;
+    }
+    let winner = stats1.hp > 0 ? contender1 : contender2;
+    let loser = stats1.hp > 0 ? contender2 : contender1;
+    let winItem = stats1.hp > 0 ? item1 : item2;
+    let itemDesc = winItem != null ? winItem.name + " ile " : "";
+    message += "SONUÇ: "+loser.name+", rakibi "+winner.name+" tarafından "+itemDesc+"öldürüldü.";
+    return message;
 }
