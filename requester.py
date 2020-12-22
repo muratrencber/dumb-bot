@@ -19,7 +19,8 @@ def show_home():
     all_data = {'rows': rows, "submit": tempval}
     return template("form", data=all_data)
 
-
+@route("/")
+    redirect("/istek")
 
 @route("/ilet", method="POST")
 def post():
