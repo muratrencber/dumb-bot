@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "^12.5.1",
+    "node-pre-gyp": "^0.17.0",
     "sequelize": "^6.3.5",
     "sqlite3": "^5.0.0"
   }
