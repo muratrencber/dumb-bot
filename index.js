@@ -301,7 +301,7 @@ client.on("message", async mess=>{
         let rowCount = await Contenders.destroy({ where: { name: afterCommand } });
         if (!rowCount)
         {
-            rowCount = await Items.destroy({ where: { keyName: afterCommand } });
+            rowCount = await Items.destroy({ where: { key: afterCommand } });
             if(!rowCount)
                 sentMessage="Böyle bir obje yok!"
             else
