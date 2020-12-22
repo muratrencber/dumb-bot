@@ -117,7 +117,7 @@ client.on("message", async mess=>{
                 contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
             sentMessage = await MakeVersus(contender1, contender2);
         }
-        else if(afterCommand.toLowerCase == "öneri")
+        else if(afterCommand.toLowerCase() == "öneri")
         {
             sentMessage = "Öneriler için: https://mrtrncbr-dumbbot-requests.herokuapp.com/istek";
         }
