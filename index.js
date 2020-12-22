@@ -148,10 +148,11 @@ client.on("message", async mess=>{
             let targetItem = await Items.findOne({where: {key: targetContender.item}});
             let itemName = targetItem != null ? targetItem.name : "Yok";
             sentMessage="İsim: "+targetContender.name+"\n"+
-            "Sağlık: "+targetContender.health+"\n"+
             "Güç: "+targetContender.strength+"\n"+
             "Zeka: "+targetContender.intelligence+"\n"+
+            "Çeviklik: "+targetContender.agility+"\n"+
             "Karizma: "+targetContender.charisma+"\n"+
+            "Sağlık: "+targetContender.health+"\n"+
             "Eşya: "+itemName;
         }
         else
@@ -160,10 +161,11 @@ client.on("message", async mess=>{
 
             sentMessage="Key: "+targetItem.key+"\n"+
             "İsim: "+targetItem.name+"\n"+
-            "Sağlık eklemesi: "+targetItem.health+"\n"+
             "Güç eklemesi: "+targetItem.strength+"\n"+
             "Zeka eklemesi: "+targetItem.intelligence+"\n"+
+            "Çeviklik eklemesi: "+targetItem.agility+"\n"+
             "Karizma eklemesi: "+targetItem.charisma+"\n"+
+            "Sağlık eklemesi: "+targetItem.health+"\n";
         }
     }
     else if(command=="eşyalar")
