@@ -154,6 +154,17 @@ client.on("message", async mess=>{
             "Karizma: "+targetContender.charisma+"\n"+
             "Eşya: "+itemName;
         }
+        else
+        {
+            let targetItem = await Items.findOne({where: {name: afterCommand}});
+
+            sentMessage="Key: "+targetItem.key+"\n"+
+            "İsim: "+targetItem.name+"\n"+
+            "Sağlık eklemesi: "+targetItem.health+"\n"+
+            "Güç eklemesi: "+targetItem.strength+"\n"+
+            "Zeka eklemesi: "+targetItem.intelligence+"\n"+
+            "Karizma eklemesi: "+targetItem.charisma+"\n"+
+        }
     }
     else if(command=="eşyalar")
     {
@@ -186,14 +197,15 @@ client.on("message", async mess=>{
         if(args1.length==3)
         {
             let keyName = args1[0].replace('"',"").replace(" ","");
-            if(Items.findOne({where: {key: keyName}}))
+            let existingItem = await Items.findOne({where: {key: keyName}});
+            if(existingItem)
             {
                 sentMessage = "Böyle bir eşya zaten var!";
             }
             else
             {
-                let name = args1[1].replace('"',"");
-                let otherArgs = args1[2].split[" "];
+                let itemName = args1[1].replace('"',"");
+                let otherArgs = args1[2].split(" ");
                 if(otherArgs.length == 5)
                 {
                     try
@@ -207,7 +219,7 @@ client.on("message", async mess=>{
                         await Items.create(
                             {
                                 key: keyName,
-                                name: name,
+                                name: itemName,
                                 strength: strength,
                                 intelligence: intelligence,
                                 agility: agility,
@@ -237,9 +249,7 @@ client.on("message", async mess=>{
         if(args1.length==2)
         {
             let contenderName = args1[0].replace('"',"");
-            console.log("savaşçı ismi:"+contenderName);
             let existingContender=await Contenders.findOne({where: {name: contenderName}});
-            console.log(existingContender)
             if(existingContender)
             {
                 sentMessage = "Böyle bir savaşçı zaten var!";
@@ -253,15 +263,10 @@ client.on("message", async mess=>{
                     try
                     {
                         let strength = parseInt(otherArgs[0]);
-                        console.log(strength);
                         let intelligence = parseInt(otherArgs[1]);
-                        console.log(intelligence);
                         let agility = parseInt(otherArgs[2]);
-                        console.log(agility);
                         let charisma = parseInt(otherArgs[3]);
-                        console.log(charisma);
                         let health = parseInt(otherArgs[4]);
-                        console.log(health);
 
                         await  Contenders.create(
                             {
@@ -273,7 +278,7 @@ client.on("message", async mess=>{
                                 health: health
                             }
                         );
-                        sentMessage="Savaşçı başarıyla oluşturuldu :party:"
+                        sentMessage="Savaşçı başarıyla oluşturuldu :partying_face:"
                     }
                     catch(e){sentMessage="Bir şeyler yanlış gitti :("}
                 }
@@ -291,10 +296,10 @@ client.on("message", async mess=>{
     }
     else if(command=="sil"&& mess.member.hasPermission("ADMINISTRATOR"))
     {
-        let rowCount = await Contenders.destroy({ where: { name: tagName } });
+        let rowCount = await Contenders.destroy({ where: { name: afterCommand } });
         if (!rowCount)
         {
-            rowCount = await Items.destroy({ where: { name: tagName } });
+            rowCount = await Items.destroy({ where: { keyName: afterCommand } });
             if(!rowCount)
                 sentMessage="Böyle bir obje yok!"
             else
@@ -336,7 +341,7 @@ function ReassembleWords(wordArray, startIndex = 0)
 }
 function ShowHelp()
 {
-    return helpText = "```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya 'Evet, hayır, belki' diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <savaşçıismi> -> Savaşçıyla ilgili ayrıntılı bilgiler.\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır (Sadece yöneticiler tarafından uygulanabilir).```";
+    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <savaşçıismi> -> Savaşçıyla ilgili ayrıntılı bilgiler.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> ->Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıtı siler.```';
 }
 function SendMessage(message, channel)
 {
