@@ -111,18 +111,15 @@ client.on("message", async mess=>{
         let contenders = afterCommand.split(";");
         if(words.length==1)
         {
-            if(afterCommand.toLowerCase = "öneri")
-            {
-                sentMessage = "Öneriler için: https://mrtrncbr-dumbbot-requests.herokuapp.com/istek";
-            }
-            else
-            {
-                let contender1 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
-                let contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
-                while(contender2.name == contender1.name)
-                    contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
-                sentMessage = await MakeVersus(contender1, contender2);
-            }
+            let contender1 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+            let contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+            while(contender2.name == contender1.name)
+                contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+            sentMessage = await MakeVersus(contender1, contender2);
+        }
+        else if(afterCommand.toLowerCase == "öneri")
+        {
+            sentMessage = "Öneriler için: https://mrtrncbr-dumbbot-requests.herokuapp.com/istek";
         }
         else
         {
