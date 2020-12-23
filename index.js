@@ -2,21 +2,25 @@ const Discord=require("discord.js");
 const Sequelize=require("sequelize");
 
 const client=new Discord.Client();
-client.login(process.env.BOT_TOKEN);
+const TOKEN =  process.env.BOT_TOKEN;
+client.login(TOKEN);
 
 const cikralayici=require("./cikralayici.js");
 const cna = require("./cna.js")
 const ehb=require("./ehb.js");
 const maxcontenders = 128;
-const umut_id=process.env.UMUT_ID;
 
 let channel = null;
 
-const sequelize = new Sequelize("database", "username", "password", {
-    host: "localhost",
-    dialect: "sqlite",
-    logging: false,
-    storage: "database.sqlite"
+const DATABASE_NAME = process.env.DATABASE_NAME || "testdatabase";
+const DATABASE_USERNAME = process.env.DATABASE_USERNAME || "postgres";
+const DATABASE_PASSWORD = process.env.DATABASE_PASSWORD || "123";
+const DATABASE_HOST = process.env.DATABASE_HOST || "localhost";
+const DATABASE_PORT = process.env.DATABASE_PORT || 5432;
+const sequelize = new Sequelize(DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD, {
+    host: DATABASE_HOST,
+    dialect: "postgres",
+    port: DATABASE_PORT,
 });
 
 const Contenders = sequelize.define("contenders",{
@@ -76,8 +80,7 @@ const Items = sequelize.define("items", {
 })
 
 client.once("ready", ()=>{
-    Contenders.sync();
-    Items.sync();
+    sequelize.sync({force: true});
 });
 
 client.on("message", async mess=>{
