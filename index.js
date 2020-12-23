@@ -236,7 +236,6 @@ client.on("message", async mess=>{
                                 health: health,
                             }
                         );
-                        await Items.commit();
                         sentMessage="Eşya başarıyla oluşturuldu :partying_face:"
                     }
                     catch(e){sentMessage="Bir şeyler yanlış gitti :("}
@@ -288,7 +287,6 @@ client.on("message", async mess=>{
                                 health: health,
                             }
                         );
-                        await Contenders.commit();
                         sentMessage="Savaşçı başarıyla oluşturuldu :partying_face:"
                     }
                     catch(e){sentMessage="Bir şeyler yanlış gitti :("}
