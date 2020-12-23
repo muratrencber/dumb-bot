@@ -76,6 +76,10 @@ const Items = sequelize.define("items", {
     charisma:{   
         type: Sequelize.INTEGER,
         allowNull: false,
+    },
+    health:{   
+        type: Sequelize.INTEGER,
+        allowNull: false,
     }
 })
 
@@ -229,7 +233,7 @@ client.on("message", async mess=>{
                                 intelligence: intelligence,
                                 agility: agility,
                                 charisma: charisma,
-                                health: health
+                                health: health,
                             }
                         );
                         await Items.commit();
@@ -281,7 +285,7 @@ client.on("message", async mess=>{
                                 intelligence: intelligence,
                                 agility: agility,
                                 charisma: charisma,
-                                health: health
+                                health: health,
                             }
                         );
                         await Contenders.commit();
