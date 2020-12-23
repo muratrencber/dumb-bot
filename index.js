@@ -177,7 +177,7 @@ client.on("message", async mess=>{
     }
     else if(command=="eşyalar")
     {
-        const contList = await Items.findAll({attributes: ["name"]});
+        const contList = await Items.findAll({attributes: ["name", "key"]});
         sentMessage = ("EŞYALAR\n"+ contList.map(c=>(c.name+" _"+c.key+"_")).join("\n")) || "Eşya yok.";
     }
     else if(command=="eşyaata" && mess.member.hasPermission("ADMINISTRATOR"))
