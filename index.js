@@ -251,7 +251,7 @@ client.on("message", async mess=>{
     {
         const contList = await Items.findAll({
             where: {
-              [Sequelize.or]: [
+                &#91;Sequelize.or]: [
                 { guildID: "null" },
                 { guildID: channel.guild.id }
               ]
