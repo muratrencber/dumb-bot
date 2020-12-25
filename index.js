@@ -487,6 +487,7 @@ async function MakeVersus(contender1, contender2, item1=null, item2=null)
 
 async function FindContender(contenderName, guildid)
 {
+    contenderName = contenderName==null?"":contenderName;
     let lastChar = contenderName.charAt(contenderName.length-1);
     if(lastChar == "*")
         contenderName = contenderName.slice(0,contenderName.length-1)+"%";
@@ -498,6 +499,7 @@ async function FindContender(contenderName, guildid)
 
 async function FindItem(keyOrName, guildid)
 {
+    keyOrName = keyOrName==null?"":keyOrName;
     let lastChar = keyOrName.charAt(keyOrName.length-1);
     if(lastChar == "*")
     keyOrName = keyOrName.slice(0,keyOrName.length-1)+"%";
