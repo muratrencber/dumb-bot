@@ -215,7 +215,7 @@ client.on("message", async mess=>{
         else
         {
             let targetItem = await FindItem(afterCommand, guildid);
-            if(targetItem == null) {
+            if(targetItem != null) {
                 sentMessage="Key: "+targetItem.key+"\n"+
                 "İsim: "+targetItem.name+"\n"+
                 "Güç eklemesi: "+targetItem.strength+"\n"+
@@ -492,7 +492,7 @@ async function FindContender(contenderName, guildid)
         contenderName = contenderName.slice(0,contenderName.length-1)+"%";
     let firstChar = contenderName.charAt(0);
     if(firstChar == "*")
-        contenderName = "%" +contenderName;
+        contenderName = "%" +contenderName.slice(1,contenderName.length);
     return await Contenders.findOne({where: {name: {[Sequelize.Op.like]:contenderName},guildID: {[Sequelize.Op.or]:[null,guildid]}}});
 }
 
@@ -503,7 +503,7 @@ async function FindItem(keyOrName, guildid)
     keyOrName = keyOrName.slice(0,keyOrName.length-1)+"%";
     let firstChar = keyOrName.charAt(0);
     if(firstChar == "*")
-        keyOrName = "%" +keyOrName;
+        keyOrName = "%" +keyOrName.slice(1,keyOrName.length);
     let itemFromName = await Items.findOne({where: {name: {[Sequelize.Op.like]:keyOrName},guildID: {[Sequelize.Op.or]:[null,guildid]}}});
     if(itemFromName != null)
         return itemFromName;
