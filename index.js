@@ -176,9 +176,13 @@ client.on("message", async mess=>{
             let item2 = await Items.findOne({where: {name: items[2]}});
             if(item2 == null)
                 item2 = await Items.findOne({where: {key: items[2]}});
-            if(item1 && item2 && contender1 && contender2)
+            console.log(contender1);
+            console.log(contender2);
+            console.log(item1);
+            console.log(item2);
+            if(item1 != null && item2 != null && contender1 != null && contender2 != null)
             {
-                sentMessage = MakeVersus(contender1, contender2, item1, item2);
+                sentMessage = await MakeVersus(contender1, contender2, item1, item2);
             }
             else
             {
