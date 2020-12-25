@@ -251,7 +251,7 @@ client.on("message", async mess=>{
     }
     else if(command=="eşyalar")
     {
-        let contList = await Items.findAll({where: {guildID: {[Sequelize.or]:["111",channel.guild.id]}}} ,{attributes: ["name", "key"]});
+        let contList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
         //let globalList = await Items.findAll({where: {guildID: null}} ,{attributes: ["name", "key"]});
         //let channelList = await Items.findAll({where: {guildID: channel.guild.id}} ,{attributes: ["name", "key"]});
         //let contList = globalList.concat(channelList);
