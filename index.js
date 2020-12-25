@@ -155,24 +155,44 @@ client.on("message", async mess=>{
             let targetItem = await Items.findOne({where: {key: targetContender.item}});
             let itemName = targetItem != null ? targetItem.name : "Yok";
             sentMessage="İsim: "+targetContender.name+"\n"+
-            "Güç: "+targetContender.strength+"\n"+
-            "Zeka: "+targetContender.intelligence+"\n"+
-            "Çeviklik: "+targetContender.agility+"\n"+
-            "Karizma: "+targetContender.charisma+"\n"+
-            "Sağlık: "+targetContender.health+"\n"+
+            "Güç: "+targetContender.strength+(targetItem!=null?(", Ek ile: "+targetContender.strength+targetItem.strength):"")+"\n"+
+            "Zeka: "+targetContender.intelligence+(targetItem!=null?(", Ek ile: "+targetContender.intelligence+targetItem.intelligence):"")+"\n"+
+            "Çeviklik: "+targetContender.agility+(targetItem!=null?(", Ek ile: "+targetContender.agility+targetItem.agility):"")+"\n"+
+            "Karizma: "+targetContender.charisma+(targetItem!=null?(", Ek ile: "+targetContender.charisma+targetItem.charisma):"")+"\n"+
+            "Sağlık: "+targetContender.health+(targetItem!=null?(", Ek ile: "+targetContender.health+targetItem.health):"")+"\n"+
             "Eşya: "+itemName;
         }
         else
         {
             let targetItem = await Items.findOne({where: {name: afterCommand}});
-
-            sentMessage="Key: "+targetItem.key+"\n"+
-            "İsim: "+targetItem.name+"\n"+
-            "Güç eklemesi: "+targetItem.strength+"\n"+
-            "Zeka eklemesi: "+targetItem.intelligence+"\n"+
-            "Çeviklik eklemesi: "+targetItem.agility+"\n"+
-            "Karizma eklemesi: "+targetItem.charisma+"\n"+
-            "Sağlık eklemesi: "+targetItem.health+"\n";
+            if(targetItem == null)
+            {
+                targetItem = await Items.findOne({where: {key: afterCommand}});
+                if(targetItem==null)
+                {
+                    sentMessage = "Obje bulunamadı!";
+                }
+                else
+                {
+                    sentMessage="Key: "+targetItem.key+"\n"+
+                    "İsim: "+targetItem.name+"\n"+
+                    "Güç eklemesi: "+targetItem.strength+"\n"+
+                    "Zeka eklemesi: "+targetItem.intelligence+"\n"+
+                    "Çeviklik eklemesi: "+targetItem.agility+"\n"+
+                    "Karizma eklemesi: "+targetItem.charisma+"\n"+
+                    "Sağlık eklemesi: "+targetItem.health+"\n";
+                }
+            }
+            else
+            {
+                sentMessage="Key: "+targetItem.key+"\n"+
+                "İsim: "+targetItem.name+"\n"+
+                "Güç eklemesi: "+targetItem.strength+"\n"+
+                "Zeka eklemesi: "+targetItem.intelligence+"\n"+
+                "Çeviklik eklemesi: "+targetItem.agility+"\n"+
+                "Karizma eklemesi: "+targetItem.charisma+"\n"+
+                "Sağlık eklemesi: "+targetItem.health+"\n";
+            }
         }
     }
     else if(command=="eşyalar")
@@ -350,7 +370,7 @@ function ReassembleWords(wordArray, startIndex = 0)
 }
 function ShowHelp()
 {
-    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <savaşçıismi> -> Savaşçıyla ilgili ayrıntılı bilgiler.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> ->Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıtı siler.```';
+    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.```';
 }
 function SendMessage(message, channel)
 {
@@ -401,14 +421,14 @@ async function MakeVersus(contender1, contender2)
         if(turn == 0)
         {
             let damage = stats1.strength + Math.floor(Math.random()*13);
-            let defence = Math.ceil((stats2.agility*stats2.agility+stats2.charisma*stats2.charisma+stats2.intelligence*stats2.intelligence)/(stats2.agility, stats2.charisma, stats2.intelligence));
+            let defence = Math.max(0, Math.ceil((Math.sign(stats2.agi)*stats2.agi*stats2.agi+Math.sign(stats2.char)*stats2.char*stats2.char+Math.sign(stats2.int)*stats2.int*stats2.int)/(Math.abs(stats2.agi)+Math.abs(stats2.char)+Math.abs(stats2.int))));
             damage = Math.max(damage-defence, 0);
             stats2.hp -= damage;
         }
         else
         {
             let damage = stats2.strength + Math.floor(Math.random()*13);
-            let defence = Math.ceil((stats1.agility*stats1.agility+stats1.charisma*stats1.charisma+stats1.intelligence*stats1.intelligence)/(stats1.agility, stats1.charisma, stats1.intelligence));
+            let defence = Math.max(0, Math.ceil((Math.sign(stats1.agi)*stats1.agi*stats1.agi+Math.sign(stats1.char)*stats1.char*stats1.char+Math.sign(stats1.int)*stats1.int*stats1.int)/(Math.abs(stats1.agi)+Math.abs(stats1.char)+Math.abs(stats1.int))));
             damage = Math.max(damage-defence, 0);
             stats1.hp -= damage;
         }
