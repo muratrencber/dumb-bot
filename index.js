@@ -159,6 +159,33 @@ client.on("message", async mess=>{
             }
         }
     }
+    else if(command=="ws")
+    {
+        let items = afterCommand.split(";");
+        if(items.length != 4)
+        {
+            sentMessage = "Hatalı girdi!";
+        }
+        else
+        {
+            let contender1 = await Contenders.findOne({where: {name: items[0]}});
+            let contender2 = await Contenders.findOne({where: {name: items[3]}});
+            let item1 = await Items.findOne({where: {name: items[1]}});
+            if(item1 == null)
+                item1 = await Items.findOne({where: {key: items[1]}});
+            let item2 = await Items.findOne({where: {name: items[2]}});
+            if(item2 == null)
+                item2 = await Items.findOne({where: {key: items[2]}});
+            if(item1 && item2 && contender1 && contender2)
+            {
+                sentMessage = MakeVersus(contender1, contender2, item1, item2);
+            }
+            else
+            {
+                sentMessage="Belirtilen eşya/savaşçılardan biri veya birkaçı bulunamadı!";
+            }
+        }
+    }
     else if(command=="savaşçılar")
     {
         const contList = await Contenders.findAll({attributes: ["name"]});
@@ -387,7 +414,7 @@ function ReassembleWords(wordArray, startIndex = 0)
 }
 function ShowHelp()
 {
-    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.```';
+    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!ws <savaşçı1>;<eşya1>;<savaşçı2>;<eşya2> -> Belirtilen savaşçılar ve eşyalar ile versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.```';
 }
 function SendMessage(message, channel)
 {
@@ -398,7 +425,7 @@ function SendMessage(message, channel)
     }, (1+(Math.random()*0.5))*1000);
 }
 
-async function MakeVersus(contender1, contender2)
+async function MakeVersus(contender1, contender2, item1=null, item2=null)
 {
     let message = contender1.name+" vs "+contender2.name +"\n";
     let stats1 ={str: 0, agi:0, int:0, char:0, hp:0};
@@ -407,7 +434,8 @@ async function MakeVersus(contender1, contender2)
     stats1.int = contender1.intelligence;
     stats1.char = contender1.charisma;
     stats1.hp = contender1.health;
-    let item1 = await Items.findOne({where: {key: contender1.item}});
+    if(item1==null)
+        item1 = await Items.findOne({where: {key: contender1.item}});
     if(item1 != null)
     {
         stats1.str += item1.strength;
@@ -422,7 +450,8 @@ async function MakeVersus(contender1, contender2)
     stats2.int = contender2.intelligence;
     stats2.char = contender2.charisma;
     stats2.hp = contender2.health;
-    let item2 = await Items.findOne({where: {key: contender2.item}});
+    if(item2==null)
+        item2 = await Items.findOne({where: {key: contender2.item}});
     if(item2 != null)
     {
         stats2.str += item2.strength;
