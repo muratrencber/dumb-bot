@@ -136,9 +136,23 @@ client.on("message", async mess=>{
                 sentMessage="Çok fazla katılımcı var! _(Maksimum katılımcı sayısı: "+maxcontenders+")_";
             else
             {
-                let winnerIndex = Math.floor(Math.random()*contenders.length);
-                let winner = contenders[winnerIndex];
-                sentMessage="Kazanan: "+winner;
+                let databaseUsed=false;
+                if(contenders.length == 2)
+                {
+                    let contender1 = await Contenders.findOne({where: {name: contenders[0]} });
+                    let contender2 = await Contenders.findOne({where: {name: contenders[1]} });
+                    if(contender1 != null && contender2 != null)
+                    {
+                        databaseUsed = true;
+                        sentMessage = MakeVersus(contender1, contender2);
+                    }
+                }
+                if(!databaseUsed)
+                {
+                    let winnerIndex = Math.floor(Math.random()*contenders.length);
+                    let winner = contenders[winnerIndex];
+                    sentMessage="Kazanan: "+winner;
+                }
             }
         }
     }
@@ -155,11 +169,11 @@ client.on("message", async mess=>{
             let targetItem = await Items.findOne({where: {key: targetContender.item}});
             let itemName = targetItem != null ? targetItem.name : "Yok";
             sentMessage="İsim: "+targetContender.name+"\n"+
-            "Güç: "+targetContender.strength+(targetItem!=null?(", Ek ile: "+targetContender.strength+targetItem.strength):"")+"\n"+
-            "Zeka: "+targetContender.intelligence+(targetItem!=null?(", Ek ile: "+targetContender.intelligence+targetItem.intelligence):"")+"\n"+
-            "Çeviklik: "+targetContender.agility+(targetItem!=null?(", Ek ile: "+targetContender.agility+targetItem.agility):"")+"\n"+
-            "Karizma: "+targetContender.charisma+(targetItem!=null?(", Ek ile: "+targetContender.charisma+targetItem.charisma):"")+"\n"+
-            "Sağlık: "+targetContender.health+(targetItem!=null?(", Ek ile: "+targetContender.health+targetItem.health):"")+"\n"+
+            "Güç: "+targetContender.strength+(targetItem!=null?(", Ek ile: "+(targetContender.strength+targetItem.strength)):"")+"\n"+
+            "Zeka: "+targetContender.intelligence+(targetItem!=null?(", Ek ile: "+(targetContender.intelligence+targetItem.intelligence)):"")+"\n"+
+            "Çeviklik: "+targetContender.agility+(targetItem!=null?(", Ek ile: "+(targetContender.agility+targetItem.agility)):"")+"\n"+
+            "Karizma: "+targetContender.charisma+(targetItem!=null?(", Ek ile: "+(targetContender.charisma+targetItem.charisma)):"")+"\n"+
+            "Sağlık: "+targetContender.health+(targetItem!=null?(", Ek ile: "+(targetContender.health+targetItem.health)):"")+"\n"+
             "Eşya: "+itemName;
         }
         else
