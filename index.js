@@ -249,7 +249,9 @@ client.on("message", async mess=>{
     }
     else if(command=="eşyalar")
     {
-        const contList = await Items.findAll({where: {guildID: null}} ,{attributes: ["name", "key"]});
+        let globalList = await Items.findAll({where: {guildID: null}} ,{attributes: ["name", "key"]});
+        let channelList = await Items.findAll({where: {guildID: channel.guild.id}} ,{attributes: ["name", "key"]});
+        let contList = globalList.concat(channelList);
         sentMessage = ("EŞYALAR\n"+ contList.map(c=>(c.name+" _"+c.key+"_")).join("\n")) || "Eşya yok.";
     }
     else if(command=="eşyaata" && mess.member.hasPermission("ADMINISTRATOR"))
