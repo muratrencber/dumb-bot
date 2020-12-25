@@ -50,6 +50,10 @@ const Contenders = sequelize.define("contenders",{
     },
     item:{   
         type: Sequelize.STRING,
+    },
+    guildID:
+    {
+        type: Sequelize.STRING,
     }
 });
 const Items = sequelize.define("items", {
@@ -80,6 +84,10 @@ const Items = sequelize.define("items", {
     health:{   
         type: Sequelize.INTEGER,
         allowNull: false,
+    },
+    guildID:
+    {
+        type: Sequelize.STRING,
     }
 })
 
@@ -188,7 +196,7 @@ client.on("message", async mess=>{
     }
     else if(command=="savaşçılar")
     {
-        const contList = await Contenders.findAll({attributes: ["name"]});
+        const contList = await Contenders.findAll({where: { $or:[{guildID: ""}, {guildID: channel.guild.id}] }} ,{attributes: ["name", "key"]});
         sentMessage = ("SAVAŞÇILAR\n"+ contList.map(c=>c.name).join("\n")) || "Savaşçı yok.";
     }
     else if(command=="ayrıntılar")
@@ -241,12 +249,12 @@ client.on("message", async mess=>{
     }
     else if(command=="eşyalar")
     {
-        const contList = await Items.findAll({attributes: ["name", "key"]});
+        const contList = await Items.findAll({where: { $or:[{guildID: ""}, {guildID: channel.guild.id}] }} ,{attributes: ["name", "key"]});
         sentMessage = ("EŞYALAR\n"+ contList.map(c=>(c.name+" _"+c.key+"_")).join("\n")) || "Eşya yok.";
     }
     else if(command=="eşyaata" && mess.member.hasPermission("ADMINISTRATOR"))
     {
-        let itemList = await Items.findAll({attributes: ["key"]});
+        let itemList = await Items.findAll({where: { $or:[{guildID: ""}, {guildID: channel.guild.id}] }} ,{attributes: ["key"]});
         shuffledArray = itemList;
         for (var i = shuffledArray.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
@@ -271,7 +279,7 @@ client.on("message", async mess=>{
         {
             let keyName = args1[0].replace('"',"").replace(" ","");
             let existingItem = await Items.findOne({where: {key: keyName}});
-            if(existingItem)
+            if(existingItem && existingItem.guildID == channel.guild.id)
             {
                 sentMessage = "Böyle bir eşya zaten var!";
             }
@@ -298,6 +306,7 @@ client.on("message", async mess=>{
                                 agility: agility,
                                 charisma: charisma,
                                 health: health,
+                                guildID: channel.guild.id,
                             }
                         );
                         sentMessage="Eşya başarıyla oluşturuldu :partying_face:"
@@ -323,7 +332,7 @@ client.on("message", async mess=>{
         {
             let contenderName = args1[0].replace('"',"");
             let existingContender=await Contenders.findOne({where: {name: contenderName}});
-            if(existingContender)
+            if(existingContender && existingContender.guildID == channel.guild.id)
             {
                 sentMessage = "Böyle bir savaşçı zaten var!";
             }
@@ -349,6 +358,7 @@ client.on("message", async mess=>{
                                 agility: agility,
                                 charisma: charisma,
                                 health: health,
+                                guildID: channel.guild.id,
                             }
                         );
                         sentMessage="Savaşçı başarıyla oluşturuldu :partying_face:"
@@ -369,12 +379,12 @@ client.on("message", async mess=>{
     }
     else if(command=="sil"&& mess.member.hasPermission("ADMINISTRATOR"))
     {
-        let rowCount = await Contenders.destroy({ where: { name: afterCommand } });
+        let rowCount = await Contenders.destroy({ where: { name: afterCommand, guildID: channel.guild.id} });
         if (!rowCount)
         {
-            rowCount = await Items.destroy({ where: { key: afterCommand } });
+            rowCount = await Items.destroy({ where: { key: afterCommand, guildID: channel.guild.id } });
             if(!rowCount)
-                sentMessage="Böyle bir obje yok!"
+                sentMessage="Obje bulunamadı!"
             else
                 sentMessage="Eşya başarıyla silindi."
         }
