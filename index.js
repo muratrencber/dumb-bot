@@ -11,6 +11,7 @@ const ehb=require("./ehb.js");
 const maxcontenders = 128;
 
 let channel = null;
+let guildid = "";
 
 const DATABASE_NAME = process.env.DATABASE_NAME || "testdatabase";
 const DATABASE_USERNAME = process.env.DATABASE_USERNAME || "postgres";
@@ -97,6 +98,7 @@ client.once("ready", ()=>{
 
 client.on("message", async mess=>{
     channel = mess.channel;
+    guildid = channel.guild.id;
     const message = mess.content;
     if(message.charAt(0) != "!")
         return;
@@ -126,10 +128,10 @@ client.on("message", async mess=>{
         let contenders = afterCommand.split(";");
         if(words.length==1)
         {
-            let contender1 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
-            let contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+            let contender1 = await Contenders.findOne({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}}, { order: sequelize.random(), limit: 5 });
+            let contender2 = await Contenders.findOne({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}}, { order: sequelize.random(), limit: 5 });
             while(contender2.name == contender1.name)
-                contender2 = await Contenders.findOne({ order: sequelize.random(), limit: 5 });
+                contender2 = await Contenders.findOne({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}}, { order: sequelize.random(), limit: 5 });
             sentMessage = await MakeVersus(contender1, contender2);
         }
         else if(afterCommand.toLowerCase() == "istek")
@@ -147,8 +149,8 @@ client.on("message", async mess=>{
                 let databaseUsed=false;
                 if(contenders.length == 2)
                 {
-                    let contender1 = await Contenders.findOne({where: {name: contenders[0]} });
-                    let contender2 = await Contenders.findOne({where: {name: contenders[1]} });
+                    let contender1 = await FindContender(contenders[0], guildid);
+                    let contender1 = await FindContender(contenders[2], guildid);
                     if(contender1 != null && contender2 != null)
                     {
                         databaseUsed = true;
@@ -176,14 +178,10 @@ client.on("message", async mess=>{
         }
         else
         {
-            let contender1 = await Contenders.findOne({where: {name: items[0]}});
-            let contender2 = await Contenders.findOne({where: {name: items[2]}});
-            let item1 = await Items.findOne({where: {name: items[1]}});
-            if(item1 == null)
-                item1 = await Items.findOne({where: {key: items[1]}});
-            let item2 = await Items.findOne({where: {name: items[3]}});
-            if(item2 == null)
-                item2 = await Items.findOne({where: {key: items[3]}});
+            let contender1 = await FindContender(items[0], guildid);
+            let item1 = await FindItem(items[1], guildid);
+            let contender2 = await FindContender(items[2], guildid);
+            let item2 = await FindItem(items[3], guildid);
             if(item1 != null && item2 != null && contender1 != null && contender2 != null)
             {
                 sentMessage = await MakeVersus(contender1, contender2, item1, item2);
@@ -196,17 +194,15 @@ client.on("message", async mess=>{
     }
     else if(command=="savaşçılar")
     {
-        let globalList = await Contenders.findAll({where: {guildID: null}} ,{attributes: ["name"]});
-        let channelList = await Contenders.findAll({where: {guildID: channel.guild.id}} ,{attributes: ["name"]});
-        let contList = globalList.concat(channelList);
+        let contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
         sentMessage = ("SAVAŞÇILAR\n"+ contList.map(c=>c.name).join("\n")) || "Savaşçı yok.";
     }
     else if(command=="ayrıntılar")
     {
-        let targetContender = await Contenders.findOne({where: {name: afterCommand}});
-        if(targetContender != null && (targetContender.guildID == null ||targetContender.guildID ==channel.guild.id))
+        let targetContender = await FindContender(afterCommand, guildid);
+        if(targetContender != null)
         {
-            let targetItem = await Items.findOne({where: {key: targetContender.item}});
+            let targetItem = await FindItem(targetContender.item, guildid);
             let itemName = targetItem != null ? targetItem.name : "Yok";
             sentMessage="İsim: "+targetContender.name+"\n"+
             "Güç: "+targetContender.strength+(targetItem!=null?(", Ek ile: "+(targetContender.strength+targetItem.strength)):"")+"\n"+
@@ -218,27 +214,8 @@ client.on("message", async mess=>{
         }
         else
         {
-            let targetItem = await Items.findOne({where: {name: afterCommand}});
-            if(targetItem == null)
-            {
-                targetItem = await Items.findOne({where: {key: afterCommand}});
-                if(targetItem==null)
-                {
-                    sentMessage = "Obje bulunamadı!";
-                }
-                else if(targetItem.guildID == null || targetItem.guildID ==channel.guild.id)
-                {
-                    sentMessage="Key: "+targetItem.key+"\n"+
-                    "İsim: "+targetItem.name+"\n"+
-                    "Güç eklemesi: "+targetItem.strength+"\n"+
-                    "Zeka eklemesi: "+targetItem.intelligence+"\n"+
-                    "Çeviklik eklemesi: "+targetItem.agility+"\n"+
-                    "Karizma eklemesi: "+targetItem.charisma+"\n"+
-                    "Sağlık eklemesi: "+targetItem.health+"\n";
-                }
-            }
-            else if(targetItem.guildID == null || targetItem.guildID ==channel.guild.id)
-            {
+            let targetItem = await FindItem(afterCommand, guildid);
+            if(targetItem == null) {
                 sentMessage="Key: "+targetItem.key+"\n"+
                 "İsim: "+targetItem.name+"\n"+
                 "Güç eklemesi: "+targetItem.strength+"\n"+
@@ -247,19 +224,19 @@ client.on("message", async mess=>{
                 "Karizma eklemesi: "+targetItem.charisma+"\n"+
                 "Sağlık eklemesi: "+targetItem.health+"\n";
             }
+            else {
+                sentMessage = "Obje bulunamadı!";
+            }
         }
     }
     else if(command=="eşyalar")
     {
-        let contList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
-        //let globalList = await Items.findAll({where: {guildID: null}} ,{attributes: ["name", "key"]});
-        //let channelList = await Items.findAll({where: {guildID: channel.guild.id}} ,{attributes: ["name", "key"]});
-        //let contList = globalList.concat(channelList);
+        let contList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,guildid]}}} ,{attributes: ["name", "key"]});
         sentMessage = ("EŞYALAR\n"+ contList.map(c=>(c.name+" _"+c.key+"_")).join("\n")) || "Eşya yok.";
     }
     else if(command=="eşyaata" && mess.member.hasPermission("ADMINISTRATOR"))
     {
-        let itemList = await Items.findAll({where: { $or:[{guildID: ""}, {guildID: channel.guild.id}] }} ,{attributes: ["key"]});
+        let itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,guildid]}}} ,{attributes: ["key"]});
         shuffledArray = itemList;
         for (var i = shuffledArray.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
@@ -267,7 +244,7 @@ client.on("message", async mess=>{
             shuffledArray[i] = shuffledArray[j];
             shuffledArray[j] = temp;
         }
-        let contenderList = await Contenders.findAll({attributes: ["name"]});
+        let contenderList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,guildid]}}} ,{attributes: ["name"]});
         for(let i =0; i < Math.min(contenderList.length, itemList.length); i++)
         {
             let contenderName = contenderList[i].name;
@@ -283,7 +260,7 @@ client.on("message", async mess=>{
         if(args1.length==3)
         {
             let keyName = args1[0].replace('"',"").replace(" ","");
-            let existingItem = await Items.findOne({where: {key: keyName}});
+            let existingItem = await FindItem(keyName, guildid);
             if(existingItem && existingItem.guildID == channel.guild.id)
             {
                 sentMessage = "Böyle bir eşya zaten var!";
@@ -336,7 +313,7 @@ client.on("message", async mess=>{
         if(args1.length==2)
         {
             let contenderName = args1[0].replace('"',"");
-            let existingContender=await Contenders.findOne({where: {name: contenderName}});
+            let existingContender=await FindContender(contenderName, guildid);
             if(existingContender && existingContender.guildID == channel.guild.id)
             {
                 sentMessage = "Böyle bir savaşçı zaten var!";
@@ -450,7 +427,7 @@ async function MakeVersus(contender1, contender2, item1=null, item2=null)
     stats1.char = contender1.charisma;
     stats1.hp = contender1.health;
     if(item1==null)
-        item1 = await Items.findOne({where: {key: contender1.item}});
+        item1 = await FindItem(contender1.item, guildid);
     if(item1 != null)
     {
         stats1.str += item1.strength;
@@ -466,7 +443,7 @@ async function MakeVersus(contender1, contender2, item1=null, item2=null)
     stats2.char = contender2.charisma;
     stats2.hp = contender2.health;
     if(item2==null)
-        item2 = await Items.findOne({where: {key: contender2.item}});
+        item2 = await FindItem(contender2.item, guildid);
     if(item2 != null)
     {
         stats2.str += item2.strength;
@@ -508,12 +485,28 @@ async function MakeVersus(contender1, contender2, item1=null, item2=null)
     return message;
 }
 
-function FindContender(name, guildid)
+async function FindContender(contenderName, guildid)
 {
-
+    let lastChar = contenderName.charAt(contenderName.length-1);
+    if(lastChar == "*")
+        contenderName = contenderName.slice(0,contenderName.length-1)+"%";
+    let firstChar = contenderName.charAt(0);
+    if(firstChar == "*")
+        contenderName = "%" +contenderName;
+    return await Contenders.findOne({where: {name: {[Sequelize.Op.like]:contenderName},guildID: {[Sequelize.Op.or]:[null,guildid]}}});
 }
 
 function FindItem(keyOrName, guildid)
 {
-
+    let lastChar = keyOrName.charAt(keyOrName.length-1);
+    if(lastChar == "*")
+    keyOrName = keyOrName.slice(0,keyOrName.length-1)+"%";
+    let firstChar = keyOrName.charAt(0);
+    if(firstChar == "*")
+        keyOrName = "%" +keyOrName;
+    let itemFromName = await Items.findOne({where: {name: {[Sequelize.Op.like]:keyOrName},guildID: {[Sequelize.Op.or]:[null,guildid]}}});
+    if(itemFromName != null)
+        return itemFromName;
+    let itemFromKey = await Items.findOne({where: {key: {[Sequelize.Op.like]:keyOrName},guildID: {[Sequelize.Op.or]:[null,guildid]}}});
+    return itemFromKey;
 }
