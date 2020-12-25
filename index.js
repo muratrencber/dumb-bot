@@ -249,7 +249,7 @@ client.on("message", async mess=>{
     }
     else if(command=="eşyalar")
     {
-        const contList = await Items.findAll({where: { $or:[{guildID: ""}, {guildID: channel.guild.id}] }} ,{attributes: ["name", "key"]});
+        const contList = await Items.findAll({where: { [Sequelize.or]:[{guildID:""}, {guildID:channel.guild.id}] }} ,{attributes: ["name", "key"]});
         sentMessage = ("EŞYALAR\n"+ contList.map(c=>(c.name+" _"+c.key+"_")).join("\n")) || "Eşya yok.";
     }
     else if(command=="eşyaata" && mess.member.hasPermission("ADMINISTRATOR"))
