@@ -496,7 +496,7 @@ async function FindContender(contenderName, guildid)
     return await Contenders.findOne({where: {name: {[Sequelize.Op.like]:contenderName},guildID: {[Sequelize.Op.or]:[null,guildid]}}});
 }
 
-function FindItem(keyOrName, guildid)
+async function FindItem(keyOrName, guildid)
 {
     let lastChar = keyOrName.charAt(keyOrName.length-1);
     if(lastChar == "*")
