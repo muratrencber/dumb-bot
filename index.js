@@ -168,6 +168,10 @@ client.on("message", async mess=>{
         }
         else
         {
+            console.log(items[0]);
+            console.log(items[1]);
+            console.log(items[2]);
+            console.log(items[3]);
             let contender1 = await Contenders.findOne({where: {name: items[0]}});
             let contender2 = await Contenders.findOne({where: {name: items[3]}});
             let item1 = await Items.findOne({where: {name: items[1]}});
