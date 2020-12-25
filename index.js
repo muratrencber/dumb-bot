@@ -150,7 +150,7 @@ client.on("message", async mess=>{
                 if(contenders.length == 2)
                 {
                     let contender1 = await FindContender(contenders[0], guildid);
-                    let contender2 = await FindContender(contenders[2], guildid);
+                    let contender2 = await FindContender(contenders[1], guildid);
                     if(contender1 != null && contender2 != null)
                     {
                         databaseUsed = true;
