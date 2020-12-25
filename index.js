@@ -144,7 +144,10 @@ client.on("message", async mess=>{
                     if(contender1 != null && contender2 != null)
                     {
                         databaseUsed = true;
-                        sentMessage = MakeVersus(contender1, contender2);
+                        if(contender1.name == contender2.name)
+                            sentMessage="Aynı kişileri niye savaştırıyorsun?";
+                        else
+                            sentMessage = await MakeVersus(contender1, contender2);
                     }
                 }
                 if(!databaseUsed)
