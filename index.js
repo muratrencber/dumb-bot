@@ -196,13 +196,15 @@ client.on("message", async mess=>{
     }
     else if(command=="savaşçılar")
     {
-        const contList = await Contenders.findAll({where: { $or:[{guildID: ""}, {guildID: channel.guild.id}] }} ,{attributes: ["name", "key"]});
+        let globalList = await Contenders.findAll({where: {guildID: null}} ,{attributes: ["name"]});
+        let channelList = await Contenders.findAll({where: {guildID: channel.guild.id}} ,{attributes: ["name"]});
+        let contList = globalList.concat(channelList);
         sentMessage = ("SAVAŞÇILAR\n"+ contList.map(c=>c.name).join("\n")) || "Savaşçı yok.";
     }
     else if(command=="ayrıntılar")
     {
         let targetContender = await Contenders.findOne({where: {name: afterCommand}});
-        if(targetContender != null)
+        if(targetContender != null && (targetContender.guildID == null ||targetContender.guildID ==channel.guild.id))
         {
             let targetItem = await Items.findOne({where: {key: targetContender.item}});
             let itemName = targetItem != null ? targetItem.name : "Yok";
@@ -224,7 +226,7 @@ client.on("message", async mess=>{
                 {
                     sentMessage = "Obje bulunamadı!";
                 }
-                else
+                else if(targetItem.guildID == null || targetItem.guildID ==channel.guild.id)
                 {
                     sentMessage="Key: "+targetItem.key+"\n"+
                     "İsim: "+targetItem.name+"\n"+
@@ -235,7 +237,7 @@ client.on("message", async mess=>{
                     "Sağlık eklemesi: "+targetItem.health+"\n";
                 }
             }
-            else
+            else if(targetItem.guildID == null || targetItem.guildID ==channel.guild.id)
             {
                 sentMessage="Key: "+targetItem.key+"\n"+
                 "İsim: "+targetItem.name+"\n"+
@@ -249,9 +251,10 @@ client.on("message", async mess=>{
     }
     else if(command=="eşyalar")
     {
-        let globalList = await Items.findAll({where: {guildID: null}} ,{attributes: ["name", "key"]});
-        let channelList = await Items.findAll({where: {guildID: channel.guild.id}} ,{attributes: ["name", "key"]});
-        let contList = globalList.concat(channelList);
+        let contList = await Items.findAll({where: {guildID: {[Sequelize.or]:["111",channel.guild.id]}}} ,{attributes: ["name", "key"]});
+        //let globalList = await Items.findAll({where: {guildID: null}} ,{attributes: ["name", "key"]});
+        //let channelList = await Items.findAll({where: {guildID: channel.guild.id}} ,{attributes: ["name", "key"]});
+        //let contList = globalList.concat(channelList);
         sentMessage = ("EŞYALAR\n"+ contList.map(c=>(c.name+" _"+c.key+"_")).join("\n")) || "Eşya yok.";
     }
     else if(command=="eşyaata" && mess.member.hasPermission("ADMINISTRATOR"))
@@ -386,7 +389,7 @@ client.on("message", async mess=>{
         {
             rowCount = await Items.destroy({ where: { key: afterCommand, guildID: channel.guild.id } });
             if(!rowCount)
-                sentMessage="Obje bulunamadı!"
+                sentMessage="Obje bulunamadı/Objeye erişiminiz yok!"
             else
                 sentMessage="Eşya başarıyla silindi."
         }
@@ -503,4 +506,14 @@ async function MakeVersus(contender1, contender2, item1=null, item2=null)
     let itemDesc = winItem != null ? winItem.name + " ile " : "";
     message += "SONUÇ: "+loser.name+", rakibi "+winner.name+" tarafından "+itemDesc+"öldürüldü.";
     return message;
+}
+
+function FindContender(name, guildid)
+{
+
+}
+
+function FindItem(keyOrName, guildid)
+{
+
 }
