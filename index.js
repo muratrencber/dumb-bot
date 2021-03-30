@@ -102,13 +102,19 @@ client.on("message", async mess=>{
     channel = mess.channel;
     guildid = channel.guild.id;
     const message = mess.content;
+    if(channel.id == KINOCHANNEL_ID)
+    {
+        console.log(mess.id);
+        console.log(mess.mentions.users);
+        console.log(mess.mentions.users.get(KINOBOT_ID));
+        if(mess.member.id != KINOBOT_ID && mess.mentions.users.get(KINOBOT_ID) == null)
+        {
+            mess.delete();
+            return;
+        }
+    }
     if(message.charAt(0) != "!")
     {
-        if(channel.id == KINOCHANNEL_ID)
-        {
-            if(mess.member.id != KINOBOT_ID && mess.mentions.users.get(KINOBOT_ID) == null)
-                mess.delete();
-        }
         return;
     }
     let cleanMessage = message.substring(1);
