@@ -104,10 +104,7 @@ client.on("message", async mess=>{
     const message = mess.content;
     if(channel.id == KINOCHANNEL_ID)
     {
-        console.log(mess.id);
-        console.log(mess.mentions.users);
-        console.log(mess.mentions.users.get(KINOBOT_ID));
-        if(mess.member.id != KINOBOT_ID && mess.mentions.users.get(KINOBOT_ID) == null)
+        if(mess.member.id != KINOBOT_ID && kino.id && (mess.mentions.users.length == 0 || mess.mentions.users.find(KINOBOT_ID) == null || mess.mentions.users.find(KINOBOT_ID) == undefined))
         {
             mess.delete();
             return;
