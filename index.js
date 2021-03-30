@@ -106,7 +106,7 @@ client.on("message", async mess=>{
     {
         if(channel.id == KINOCHANNEL_ID)
         {
-            if(mess.mentions.users.get(KINOBOT_ID) == null)
+            if(mess.member.id != KINOBOT_ID && mess.mentions.users.get(KINOBOT_ID) == null)
                 mess.delete();
         }
         return;
