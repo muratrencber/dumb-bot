@@ -13,6 +13,8 @@ const maxcontenders = 128;
 let channel = null;
 let guildid = "";
 
+const KINOBOT_ID = process.env.KINOBOT_ID || "718996755596967966";
+const KINOCHANNEL_ID = process.env.KINOCHANNEL_ID || "826466952200716298";
 const DATABASE_NAME = process.env.DATABASE_NAME || "testdatabase";
 const DATABASE_USERNAME = process.env.DATABASE_USERNAME || "postgres";
 const DATABASE_PASSWORD = process.env.DATABASE_PASSWORD || "123";
@@ -101,7 +103,14 @@ client.on("message", async mess=>{
     guildid = channel.guild.id;
     const message = mess.content;
     if(message.charAt(0) != "!")
+    {
+        if(channel.id == KINOCHANNEL_ID)
+        {
+            if(!mess.mentions.users.find(e => e.id == KINOBOT_ID))
+                mess.delete();
+        }
         return;
+    }
     let cleanMessage = message.substring(1);
     let words = cleanMessage.split(" ");
     if(words.length == 0)
