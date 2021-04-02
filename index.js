@@ -2,12 +2,15 @@ const Discord=require("discord.js");
 const Sequelize=require("sequelize");
 
 const client=new Discord.Client();
-const TOKEN =  process.env.BOT_TOKEN;
+const TOKEN =  process.env.BOT_TOKEN|| "Nzg3MzQ5MzA1NDgwNTc3MDU1.X9TqLg.cVxL2joZR99Mvd4gj0M4kH1j9s0";
 client.login(TOKEN);
 
 const cikralayici=require("./cikralayici.js");
 const cna = require("./cna.js")
 const ehb=require("./ehb.js");
+const IMDBScrapper = require("imdb-scraper");
+const imdb = new IMDBScrapper({});
+const imdb2 = require('imdb-node-api');
 const maxcontenders = 128;
 
 let channel = null;
@@ -95,7 +98,7 @@ const Items = sequelize.define("items", {
 })
 
 client.once("ready", ()=>{
-    sequelize.sync({alter: true});
+    //sequelize.sync({alter: true});
 });
 
 client.on("message", async mess=>{
@@ -104,6 +107,8 @@ client.on("message", async mess=>{
     const message = mess.content;
     if(channel.id == KINOCHANNEL_ID)
     {
+        console.log("MENTLENGTH:"+mess.mentions.users.length);
+        console.log("FOUND:"+mess.mentions.users.find(KINOBOT_ID));
         if(mess.member.id != KINOBOT_ID && (mess.mentions.users.length == 0 || mess.mentions.users.find(KINOBOT_ID) == null || mess.mentions.users.find(KINOBOT_ID) == undefined))
         {
             mess.delete();
@@ -135,6 +140,31 @@ client.on("message", async mess=>{
     }
     else if(command == "puanla"){
         sentMessage=(Math.floor(Math.random()*10)+1)+"/10";
+    }
+    else if(command == "kino")
+    {
+        imdb2.searchMovies(afterCommand, function (movies) {
+            if(movies.length == 0)
+            {
+                channel.send("Hiçbir şey bulunamadı!");
+            }
+            else
+            {
+                imdb2.getMovie(movies[0].id, function (movie) {
+                    let result = "";
+                    result += "**Title: **" + movie.title + "\n";
+                    result += "**Rating: **" + movie.ratingValue + "\n";
+                    result += "**Director: **" + movie.director + "\n";
+                    result += "**Runtime: **" + movie.duration + "\n";
+                    channel.send(result);
+                    channel.send(movie.poster);
+                }, function(error) {
+                    channel.send("Bir şeyler yanlış gitti!");
+                });
+            }
+        }, function(error) {
+            channel.send("Bir şeyler yanlış gitti!");
+        });
     }
     else if(command=="vs"){
         let contenders = afterCommand.split(";");

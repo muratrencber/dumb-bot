@@ -11,6 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "^12.5.1",
+    "imdb-api": "^4.4.1",
+    "imdb-node-api": "^0.1.0",
+    "imdb-scraper": "^2.0.2",
     "node-pre-gyp": "^0.17.0",
     "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
