@@ -2,7 +2,7 @@ const Discord=require("discord.js");
 const Sequelize=require("sequelize");
 
 const client=new Discord.Client();
-const TOKEN =  process.env.BOT_TOKEN|| "Nzg3MzQ5MzA1NDgwNTc3MDU1.X9TqLg.cVxL2joZR99Mvd4gj0M4kH1j9s0";
+const TOKEN =  process.env.BOT_TOKEN;
 client.login(TOKEN);
 
 const cikralayici=require("./cikralayici.js");
