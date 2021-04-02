@@ -105,7 +105,7 @@ client.on("message", async mess=>{
     channel = mess.channel;
     guildid = channel.guild.id;
     const message = mess.content;
-    if(channel.id == KINOCHANNEL_ID)
+    /*if(channel.id == KINOCHANNEL_ID)
     {
         console.log("MENTLENGTH:"+mess.mentions.users.length);
         console.log("FOUND:"+mess.mentions.users.find(KINOBOT_ID));
@@ -113,7 +113,7 @@ client.on("message", async mess=>{
         {
             return;
         }
-    }
+    }*/
     if(message.charAt(0) != "!")
     {
         return;
