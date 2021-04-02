@@ -111,7 +111,6 @@ client.on("message", async mess=>{
         console.log("FOUND:"+mess.mentions.users.find(KINOBOT_ID));
         if(mess.member.id != KINOBOT_ID && (mess.mentions.users.length == 0 || mess.mentions.users.find(KINOBOT_ID) == null || mess.mentions.users.find(KINOBOT_ID) == undefined))
         {
-            mess.delete();
             return;
         }
     }
