@@ -2,11 +2,12 @@ const Discord=require("discord.js");
 const Sequelize=require("sequelize");
 
 const client=new Discord.Client();
-const TOKEN =  process.env.BOT_TOKEN;
+const TOKEN =  process.env.BOT_TOKEN || "";
 client.login(TOKEN);
 
 const cikralayici=require("./cikralayici.js");
 const cna = require("./cna.js")
+const emojisender = require("./emojisender.js")
 const ehb=require("./ehb.js");
 const IMDBScrapper = require("imdb-scraper");
 const imdb = new IMDBScrapper({});
@@ -139,6 +140,10 @@ client.on("message", async mess=>{
     }
     else if(command == "puanla"){
         sentMessage=(Math.floor(Math.random()*10)+1)+"/10";
+    }
+    else if(command == "emoji")
+    {
+        sentMessage=emojisender.GetImageLink(afterCommand);
     }
     else if(command == "kino")
     {
