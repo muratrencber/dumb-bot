@@ -8,6 +8,7 @@ const dict = {
     "fcat": "fcat.png",
     "ege1": "ege1.png",
     "ege2": "ege2.png",
+    "cumut": "cumut.gif",
 }
 
 module.exports=
