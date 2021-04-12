@@ -143,7 +143,10 @@ client.on("message", async mess=>{
     }
     else if(command == "emoji")
     {
-        sentMessage=emojisender.GetImageLink(afterCommand);
+        if(afterCommand == "liste")
+            sentMessage = emojisender.ListEmojis();
+        else
+            sentMessage=emojisender.GetImageLink(afterCommand);
     }
     else if(command == "kino")
     {

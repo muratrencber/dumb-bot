@@ -4,10 +4,10 @@ const dict = {
     "troll1": "troll1.png",
     "troll2": "troll5.png",
     "amongbitches": "359.jpg",
-    "fboi": "",
-    "fcat": "",
-    "ege1": "",
-    "ege2": "",
+    "fboi": "fboi.png",
+    "fcat": "fcat.png",
+    "ege1": "ege1.png",
+    "ege2": "ege2.png",
 }
 
 module.exports=
@@ -55,6 +55,17 @@ module.exports=
             return url+"/emoji_media/"+imgStr+".gif";
         }
         return "";
+    },
+    ListEmojis : function()
+    {
+        let str = "Kayıtlı kısaltmalar: \n";
+        for (var key in dict) {
+            // check if the property/key is defined in the object itself, not in parent
+            if (dict.hasOwnProperty(key)) {           
+                str += key + "\n";
+            }
+        }
+        return str;
     }
 }
 
