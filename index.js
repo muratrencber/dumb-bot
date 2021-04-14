@@ -148,6 +148,35 @@ client.on("message", async mess=>{
         else
             sentMessage=emojisender.GetImageLink(afterCommand);
     }
+    else if(command == "avatar")
+    {
+        
+        let user = client.users.cache.find(u => u.username == afterCommand);
+        if(user != null)
+        {
+            channel.send((await user).displayAvatarURL({"format":"png", "size":4096}));
+        }
+        else
+        {
+            let guildmember = channel.guild.members.cache.find(m => m.displayName == afterCommand);
+            if(guildmember != null)
+                afterCommand = guildmember.id;
+            try
+            {
+                user = client.users.fetch(afterCommand);
+                if(user != null)
+                {
+                    channel.send((await user).displayAvatarURL({"format":"png", "size":4096}));
+                }
+            }
+            catch
+            {
+
+            }
+        }
+        mess.mentions.users.each(user => channel.send(user.displayAvatarURL({"format":"png",
+                                                                        "size":4096})));
+    }
     else if(command == "kino")
     {
         imdb2.searchMovies(afterCommand, function (movies) {
@@ -453,7 +482,7 @@ function ReassembleWords(wordArray, startIndex = 0)
 }
 function ShowHelp()
 {
-    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!emoji <isim> -> Emoji gönderir. \n!emoji liste -> Mevcut emojileri listeler. \n!kino <film ismi> -> IMDb veritabanında bulduğu filmi döndürür. \n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!ws <savaşçı1>;<eşya1>;<savaşçı2>;<eşya2> -> Belirtilen savaşçılar ve eşyalar ile versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.```';
+    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!emoji <isim> -> Emoji gönderir. \n!emoji liste -> Mevcut emojileri listeler. \n!kino <film ismi> -> IMDb veritabanında bulduğu filmi döndürür. \n!avatar <kullanıcıadı/id/etiket> Belirtilen üyenin profil resmini döndürür.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!ws <savaşçı1>;<eşya1>;<savaşçı2>;<eşya2> -> Belirtilen savaşçılar ve eşyalar ile versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.```';
 }
 function SendMessage(message, channel)
 {
