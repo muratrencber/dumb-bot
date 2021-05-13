@@ -28,6 +28,7 @@ const sequelize = new Sequelize(DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSW
     host: DATABASE_HOST,
     dialect: "postgres",
     port: DATABASE_PORT,
+	ssl: true,
 });
 
 const Contenders = sequelize.define("contenders",{
