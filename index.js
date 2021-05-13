@@ -29,7 +29,10 @@ const sequelize = new Sequelize(DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSW
     	dialect: "postgres",
     	port: DATABASE_PORT,
 	dialectOptions: {
-  	"ssl": true
+    		ssl: {
+      			require: true,
+      			rejectUnauthorized: false
+    		}
 	},
 });
 
