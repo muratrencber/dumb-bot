@@ -25,10 +25,12 @@ const DATABASE_PASSWORD = process.env.DATABASE_PASSWORD || "123";
 const DATABASE_HOST = process.env.DATABASE_HOST || "localhost";
 const DATABASE_PORT = process.env.DATABASE_PORT || 5432;
 const sequelize = new Sequelize(DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD, {
-    host: DATABASE_HOST,
-    dialect: "postgres",
-    port: DATABASE_PORT,
-	ssl: true,
+    	host: DATABASE_HOST,
+    	dialect: "postgres",
+    	port: DATABASE_PORT,
+	dialectOptions: {
+  	"ssl": true
+	},
 });
 
 const Contenders = sequelize.define("contenders",{
