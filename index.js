@@ -160,7 +160,7 @@ client.on("message", async mess=>{
         let user = client.users.cache.find(u => u.username == afterCommand);
         if(user != null)
         {
-            channel.send((await user).displayAvatarURL({"format":"png", "size":4096}));
+            channel.send((await user).displayAvatarURL({"format":"gif", "size":4096}));
         }
         else
         {
@@ -172,7 +172,7 @@ client.on("message", async mess=>{
                 user = client.users.fetch(afterCommand);
                 if(user != null)
                 {
-                    channel.send((await user).displayAvatarURL({"format":"png", "size":4096}));
+                    channel.send((await user).displayAvatarURL({"format":"gif", "size":4096}));
                 }
             }
             catch
@@ -180,7 +180,7 @@ client.on("message", async mess=>{
 
             }
         }
-        mess.mentions.users.each(user => channel.send(user.displayAvatarURL({"format":"png",
+        mess.mentions.users.each(user => channel.send(user.displayAvatarURL({"format":"gif",
                                                                         "size":4096})));
     }
     else if(command == "kino")
