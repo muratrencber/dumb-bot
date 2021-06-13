@@ -186,7 +186,7 @@ client.on("message", async mess=>{
     else if(command == "kino")
     {
         imdb2.searchMovies(afterCommand, function (movies) {
-            if(movies.length == 0)
+            if(movies.length == 0 || movies[0] == null || movies[0] == undefined)
             {
                 channel.send("Hiçbir şey bulunamadı!");
             }
