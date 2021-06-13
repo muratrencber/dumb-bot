@@ -193,13 +193,20 @@ client.on("message", async mess=>{
             else
             {
                 imdb2.getMovie(movies[0].id, function (movie) {
-                    let result = "";
-                    result += "**Title: **" + movie.title + "\n";
-                    result += "**Rating: **" + movie.ratingValue + "\n";
-                    result += "**Director: **" + movie.director + "\n";
-                    result += "**Runtime: **" + movie.duration + "\n";
-                    channel.send(result);
-                    channel.send(movie.poster);
+                    if(movie == null || movie == undefined)
+                    {
+                        channel.send("Hatalı arama!");
+                    }
+                    else
+                    {
+                        let result = "";
+                        result += "**Title: **" + movie.title + "\n";
+                        result += "**Rating: **" + movie.ratingValue + "\n";
+                        result += "**Director: **" + movie.director + "\n";
+                        result += "**Runtime: **" + movie.duration + "\n";
+                        channel.send(result);
+                        channel.send(movie.poster);
+                    }
                 }, function(error) {
                     channel.send("Bir şeyler yanlış gitti!");
                 });
