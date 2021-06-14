@@ -160,7 +160,7 @@ client.on("message", async mess=>{
         let user = client.users.cache.find(u => u.username == afterCommand);
         if(user != null)
         {
-            channel.send((await user).displayAvatarURL({"format":"gif", "size":4096}));
+            channel.send((await user).displayAvatarURL({"dynamic":"true", "size":4096}));
         }
         else
         {
