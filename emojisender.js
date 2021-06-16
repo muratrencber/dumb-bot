@@ -1,4 +1,4 @@
-const url = process.env.URL || "https://muratrencber.github.io/dumb-bot";
+const url = process.env.URL || "https://sunstruck.games/dumb";
 const urlExist = require("url-exist-sync");
 const dict = {
     "troll1": "troll1.png",
