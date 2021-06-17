@@ -211,10 +211,11 @@ client.on("message", async mess=>{
                 }
                 else
                 {
+                    console.log("first movie id: " +movies[0].id);
                     imdb2.getMovie(movies[0].id, function (movie) {
                         if(movie == null || movie == undefined)
                         {
-                            movieMessage.edit("Hatalı arama!");
+                            movieMessage.edit("Hatalı arama! Film bulunamadı!");
                         }
                         else
                         {
