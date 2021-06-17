@@ -499,7 +499,7 @@ client.on("message", async mess=>{
                 }).then(messages => {
                     const msgs = messages.filter(m => m.author.id === BOT_ID)
                     msgs.forEach(m => {
-                        if(m.content.includes("!çıkrala çıkraal"))
+                        if(m.content.includes("!çıkrala !çıkraal"))
                             m.delete();
                     })
                 })
