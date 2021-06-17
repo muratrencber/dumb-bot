@@ -203,39 +203,41 @@ client.on("message", async mess=>{
     }
     else if(command == "kinodebug")
     {
-        imdb2.searchMovies(afterCommand, function (movies) {
-            if(movies.length == 0 || movies[0] == null || movies[0] == undefined)
-            {
-                channel.send("Hiçbir şey bulunamadı!");
-            }
-            else
-            {
-                imdb2.getMovie(movies[0].id, function (movie) {
-                    if(movie == null || movie == undefined)
-                    {
-                        channel.send("Hatalı arama!");
-                    }
-                    else
-                    {
-                        let result = "";
-                        result += "**Title: **" + movie.title + "\n";
-                        result += "**Rating: **" + movie.ratingValue + "\n";
-                        if(movie.director != null)
-                            result += "**Director: **" + movie.director + "\n";
-                        else if(movie.creator != null)
-                            result += "**Creator: **" + movie.creator + "\n";
-                        if(movie.runtime != null)
-                            result += "**Runtime: **" + movie.duration + "\n";
-                        channel.send(result);
-                        channel.send(movie.poster);
-                    }
-                }, function(error) {
-                    channel.send("Bir şeyler yanlış gitti: " + error);
-                });
-            }
-        }, function(error) {
-            channel.send("Bir şeyler yanlış gitti!");
-        });
+        channel.send("Aranıyor...").then(movieMessage => {
+            imdb2.searchMovies(afterCommand, function (movies) {
+                if(movies.length == 0 || movies[0] == null || movies[0] == undefined)
+                {
+                    movieMessage.edit("Hiçbir şey bulunamadı!");
+                }
+                else
+                {
+                    imdb2.getMovie(movies[0].id, function (movie) {
+                        if(movie == null || movie == undefined)
+                        {
+                            movieMessage.edit("Hatalı arama!");
+                        }
+                        else
+                        {
+                            let result = "";
+                            result += "**İsim: **" + movie.title + "\n";
+                            result += "**Puan: **" + movie.ratingValue + "\n";
+                            if(movie.director != null)
+                                result += "**Yönetmen: **" + movie.director + "\n";
+                            else if(movie.creator != null)
+                                result += "**Yaratıcı: **" + movie.creator + "\n";
+                            if(movie.runtime != null)
+                                result += "**Süre: **" + movie.duration + "\n";
+                            movieMessage.edit(result);
+                            channel.send(movie.poster);
+                        }
+                    }, function(error) {
+                        movieMessage.edit("Bir şeyler yanlış gitti: " + error);
+                    });
+                }
+            }, function(error) {
+                movieMessage.edit("Bir şeyler yanlış gitti!");
+            });
+        })
     }
     else if(command=="vs"){
         let contenders = afterCommand.split(";");
