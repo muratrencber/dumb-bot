@@ -13,6 +13,7 @@ const IMDBScrapper = require("imdb-scraper");
 const imdb = new IMDBScrapper({});
 const imdb2 = require('imdb-node-api');
 const maxcontenders = 128;
+const urlExist = require("url-exist-sync");
 
 let channel = null;
 let guildid = "";
@@ -135,8 +136,25 @@ client.on("message", async mess=>{
     if(command == "ehb" && words.length > 1){
         sentMessage=ehb.EHB();
     }
-    else if(command == "çıkrala" && words.length > 1){
-        sentMessage=cikralayici.Cikrala(afterCommand);
+    else if(command == "çıkrala"){
+        if(words.length == 1)
+        {
+            if(mess.reference != null)
+            {
+                mess.channel.messages.fetch(mess.reference.id).then(msg => sentMessage = cikralayici.Cikrala(msg.content));
+            }
+            else
+            {
+                mess.channel.messages.fetch({limit: 2})
+                .then(messageMappings => {
+                let messages = Array.from(messageMappings.values());
+                let previousMessage = messages[1];
+                sentMessage = cikralayici.Cikrala(previousMessage.content);
+                })
+            }
+        }
+        else
+            sentMessage=cikralayici.Cikrala(afterCommand);
     }
     else if(command == "yardım" && words.length == 1){
         sentMessage=ShowHelp();
@@ -160,7 +178,11 @@ client.on("message", async mess=>{
         let user = client.users.cache.find(u => u.username == afterCommand);
         if(user != null)
         {
-            channel.send((await user).displayAvatarURL({"dynamic":"true", "size":4096}));
+            let avatarGIFURL = (await user).displayAvatarURL({"format":"gif", "size":4096});
+            if(urlExist(avatarGIFURL))
+                channel.send(avatarGIFURL);
+            else
+                channel.send((await user).displayAvatarURL({"format":"png", "size":4096}));
         }
         else
         {
@@ -202,13 +224,17 @@ client.on("message", async mess=>{
                         let result = "";
                         result += "**Title: **" + movie.title + "\n";
                         result += "**Rating: **" + movie.ratingValue + "\n";
-                        result += "**Director: **" + movie.director + "\n";
-                        result += "**Runtime: **" + movie.duration + "\n";
+                        if(movie.director != null)
+                            result += "**Director: **" + movie.director + "\n";
+                        else if(movie.creator != null)
+                            result += "**Creator: **" + movie.creator + "\n";
+                        if(movie.runtime != null)
+                            result += "**Runtime: **" + movie.duration + "\n";
                         channel.send(result);
                         channel.send(movie.poster);
                     }
                 }, function(error) {
-                    channel.send("Bir şeyler yanlış gitti!");
+                    channel.send("Bir şeyler yanlış gitti: " + error);
                 });
             }
         }, function(error) {
