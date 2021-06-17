@@ -141,7 +141,7 @@ client.on("message", async mess=>{
         {
             if(mess.reference != null)
             {
-                await mess.channel.messages.fetch(mess.reference.id).then(msg => sentMessage = cikralayici.Cikrala((await msg).content));
+                await mess.channel.messages.fetch(mess.reference.messageID).then(msg => sentMessage = cikralayici.Cikrala(msg.content));
             }
             else
             {
