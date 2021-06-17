@@ -490,6 +490,24 @@ client.on("message", async mess=>{
             sentMessage="Savaşçı başarıyla silindi."
         }
     }
+    else if(command == "çıkratemizle" && mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        await client.guilds.cache.get(channel.guild.id).channels.cache.forEach(ch => {
+            if (ch.type === 'text'){
+                ch.messages.fetch({
+                    limit: 500
+                }).then(messages => {
+                    const msgs = messages.filter(m => m.author.id === BOT_ID)
+                    msgs.forEach(m => {
+                        if(m.content.includes("!çıkrala çıkraal"))
+                            m.delete();
+                    })
+                })
+            } else {
+                return;
+            }
+        })
+    }
     if(sentMessage!="")
         SendMessage(sentMessage, channel);
 })
