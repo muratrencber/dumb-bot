@@ -497,7 +497,7 @@ client.on("message", async mess=>{
                 ch.messages.fetch({
                     limit: 500
                 }).then(messages => {
-                    const msgs = messages.filter(m => m.author.id === BOT_ID)
+                    const msgs = messages.filter(m => m.author.id == BOT_ID)
                     msgs.forEach(m => {
                         if(m.content.includes("!çıkrala !çıkraal"))
                             m.delete();
