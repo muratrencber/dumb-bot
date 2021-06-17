@@ -141,11 +141,11 @@ client.on("message", async mess=>{
         {
             if(mess.reference != null)
             {
-                mess.channel.messages.fetch(mess.reference.id).then(msg => sentMessage = cikralayici.Cikrala(msg.content));
+                await mess.channel.messages.fetch(mess.reference.id).then(msg => sentMessage = cikralayici.Cikrala(msg.content));
             }
             else
             {
-                mess.channel.messages.fetch({limit: 2})
+                await mess.channel.messages.fetch({limit: 2})
                 .then(messageMappings => {
                 let messages = Array.from(messageMappings.values());
                 let previousMessage = messages[1];
