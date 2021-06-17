@@ -495,7 +495,7 @@ client.on("message", async mess=>{
         await client.guilds.cache.get(channel.guild.id).channels.cache.forEach(ch => {
             if (ch.type === 'text'){
                 ch.messages.fetch({
-                    limit: 500
+                    limit: 100
                 }).then(messages => {
                     const msgs = messages.filter(m => m.author.id == BOT_ID)
                     msgs.forEach(m => {
