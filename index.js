@@ -3,6 +3,7 @@ const Sequelize=require("sequelize");
 
 const client=new Discord.Client();
 const TOKEN =  process.env.BOT_TOKEN || "";
+const BOT_ID = process.env.BOT_ID || "787349305480577055";
 client.login(TOKEN);
 
 const cikralayici=require("./cikralayici.js");
@@ -122,7 +123,7 @@ client.on("message", async mess=>{
             return;
         }
     }*/
-    if(message.charAt(0) != "!")
+    if(message.charAt(0) != "!" || mess.author.id == BOT_ID)
     {
         return;
     }
