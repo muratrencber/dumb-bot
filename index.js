@@ -204,30 +204,38 @@ client.on("message", async mess=>{
     }
     else if(command == "kino")
     {
+        if(afterCommand.includes("https://www.imdb.com/title/") || afterCommand.includes("http://www.imdb.com/title/"))
+        {
+            afterCommand.replace("https://www.imdb.com/title/", "");
+            afterCommand.replace("http://www.imdb.com/title/", "");
+            afterCommand = afterCommand.split("/")[0];
+        }
         channel.send("Aranıyor...").then(movieMessage => {
             imdb2.searchMovies(afterCommand, function (movies) {
+                let id = "";
                 if(movies.length == 0 || movies[0] == null || movies[0] == undefined)
                 {
-                    movieMessage.edit("Hiçbir şey bulunamadı!");
+                    id = afterCommand;
                 }
                 else
                 {
-                    imdb2.getMovie(movies[0].id, function (movie) {
-                        let result = "";
-                        result += "**İsim: **" + movie.title + "\n";
-                        result += "**Puan: **" + movie.ratingValue + "\n";
-                        if(movie.director != null)
-                            result += "**Yönetmen: **" + movie.director + "\n";
-                        else if(movie.creator != null)
-                            result += "**Yaratıcı: **" + movie.creator + "\n";
-                        if(movie.runtime != null)
-                            result += "**Süre: **" + movie.duration + "\n";
-                        movieMessage.edit(result);
-                        channel.send(movie.poster);
-                    }, function(error) {
-                        movieMessage.edit("Bir şeyler yanlış gitti: " + error);
-                    });
+                    id = movies[0].id;
                 }
+                imdb2.getMovie(id, function (movie) {
+                    let result = "";
+                    result += "**İsim: **" + movie.title + "\n";
+                    result += "**Puan: **" + movie.ratingValue + "\n";
+                    if(movie.director != null)
+                        result += "**Yönetmen: **" + movie.director + "\n";
+                    else if(movie.creator != null)
+                        result += "**Yaratıcı: **" + movie.creator + "\n";
+                    if(movie.runtime != null)
+                        result += "**Süre: **" + movie.duration + "\n";
+                    movieMessage.edit(result);
+                    channel.send(movie.poster);
+                }, function(error) {
+                    movieMessage.edit("Bir şeyler yanlış gitti: " + error);
+                });
             }, function(error) {
                 movieMessage.edit("Bir şeyler yanlış gitti!");
             });
