@@ -202,7 +202,7 @@ client.on("message", async mess=>{
         mess.mentions.users.each(user => channel.send(user.displayAvatarURL({dynamic:true,
                                                                         size:4096})));
     }
-    else if(command == "kinodebug")
+    else if(command == "kino")
     {
         channel.send("Aranıyor...").then(movieMessage => {
             imdb2.searchMovies(afterCommand, function (movies) {
@@ -212,26 +212,18 @@ client.on("message", async mess=>{
                 }
                 else
                 {
-                    console.log("first movie id: " +movies[0].id);
                     imdb2.getMovie(movies[0].id, function (movie) {
-                        if(movie == null || movie == undefined)
-                        {
-                            movieMessage.edit("Hatalı arama! Film bulunamadı!");
-                        }
-                        else
-                        {
-                            let result = "";
-                            result += "**İsim: **" + movie.title + "\n";
-                            result += "**Puan: **" + movie.ratingValue + "\n";
-                            if(movie.director != null)
-                                result += "**Yönetmen: **" + movie.director + "\n";
-                            else if(movie.creator != null)
-                                result += "**Yaratıcı: **" + movie.creator + "\n";
-                            if(movie.runtime != null)
-                                result += "**Süre: **" + movie.duration + "\n";
-                            movieMessage.edit(result);
-                            channel.send(movie.poster);
-                        }
+                        let result = "";
+                        result += "**İsim: **" + movie.title + "\n";
+                        result += "**Puan: **" + movie.ratingValue + "\n";
+                        if(movie.director != null)
+                            result += "**Yönetmen: **" + movie.director + "\n";
+                        else if(movie.creator != null)
+                            result += "**Yaratıcı: **" + movie.creator + "\n";
+                        if(movie.runtime != null)
+                            result += "**Süre: **" + movie.duration + "\n";
+                        movieMessage.edit(result);
+                        channel.send(movie.poster);
                     }, function(error) {
                         movieMessage.edit("Bir şeyler yanlış gitti: " + error);
                     });
