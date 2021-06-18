@@ -206,9 +206,10 @@ client.on("message", async mess=>{
     {
         if(afterCommand.includes("https://www.imdb.com/title/") || afterCommand.includes("http://www.imdb.com/title/"))
         {
-            afterCommand.replace("https://www.imdb.com/title/", "");
-            afterCommand.replace("http://www.imdb.com/title/", "");
+            afterCommand = afterCommand.replace("https://www.imdb.com/title/", "");
+            afterCommand = afterCommand.replace("http://www.imdb.com/title/", "");
             afterCommand = afterCommand.split("/")[0];
+            console.log("id is: " + afterCommand);
         }
         channel.send("Aranıyor...").then(movieMessage => {
             imdb2.searchMovies(afterCommand, function (movies) {
@@ -224,7 +225,8 @@ client.on("message", async mess=>{
                 imdb2.getMovie(id, function (movie) {
                     let result = "";
                     result += "**İsim: **" + movie.title + "\n";
-                    result += "**Puan: **" + movie.ratingValue + "\n";
+                    if(movie.ratingValue != null)
+                        result += "**Puan: **" + movie.ratingValue + "\n";
                     if(movie.director != null)
                         result += "**Yönetmen: **" + movie.director + "\n";
                     else if(movie.creator != null)
