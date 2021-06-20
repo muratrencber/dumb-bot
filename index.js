@@ -735,7 +735,7 @@ async function MakeTournamentVersus()
         }
         channel.send("NEW CONTENDER STRING: " + newString);
         let status = isLast ? 0 : 1;
-        await Tournaments.update({contenders: newString, status: status}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        await Tournaments.update({contenders: newString, status: status}, {where: {guildID: {[Sequelize.Op.like]:guildid}}});
     }
     else if(tournamentJob != null)
     {
@@ -778,8 +778,6 @@ async function MakeVersusTournament(contender1, contender2, item1=null, item2=nu
     stats1.int = contender1.intelligence;
     stats1.char = contender1.charisma;
     stats1.hp = contender1.health;
-    if(item1==null)
-        item1 = await FindItem(contender1.item, guildid);
     if(item1 != null)
     {
         stats1.str += item1.strength;
@@ -794,8 +792,6 @@ async function MakeVersusTournament(contender1, contender2, item1=null, item2=nu
     stats2.int = contender2.intelligence;
     stats2.char = contender2.charisma;
     stats2.hp = contender2.health;
-    if(item2==null)
-        item2 = await FindItem(contender2.item, guildid);
     if(item2 != null)
     {
         stats2.str += item2.strength;
