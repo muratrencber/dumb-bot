@@ -1,4 +1,5 @@
 const Discord=require("discord.js");
+const Canvas = require('canvas');
 const Sequelize=require("sequelize");
 
 const client=new Discord.Client();
@@ -509,6 +510,19 @@ client.on("message", async mess=>{
                 return;
             }
         })
+    }
+    else if(command == "flop" && mess.mentions.users.first() != null)
+    {
+        let canvas = Canvas.createCanvas(1920, 1080);
+        let context = canvas.getContext('2d');
+        let flop = await Canvas.loadImage('https://sunstruck.games/dumb/emoji_media/flop.jpg');
+        let heart = await Canvas.loadImage('https://sunstruck.games/dumb/other/kalp-37858.jpg');
+        let profilePicture = await Canvas.loadImage(mess.mentions.users.first().displayAvatarURL({size: 1024, format: 'png'}));
+        context.drawImage(flop, 960, 0, 960, 1080);
+        context.drawImage(profilePicture, 0, 0, 960, 1080);
+        context.drawImage(heart, 789, 360, 360, 360);
+        let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'flop.jpg');
+        channel.send("F L O P L A N D I N", attachment);
     }
     if(sentMessage!="")
         SendMessage(sentMessage, channel);
