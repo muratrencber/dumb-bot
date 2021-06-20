@@ -518,6 +518,46 @@ client.on("message", async mess=>{
             await Tournaments.update({channel: targetChannelID}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
         }
     }
+    else if(command=="turnuvabaşlat" && mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        if(tournament == null)
+        {
+            sentMessage = "Turnuva kanalını seçin!";
+        }
+        else if(tournament.status == 1)
+        {
+            sentMessage = "Bir turnuva zaten başlatıldı!";
+        }
+        else if(tournament.status == 0)
+        {
+            let contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
+            if(contList.length < 16)
+            {
+                sentMessage = "Yeterli savaşçıya sahip değilsiniz. _(En az 16)_";
+            }
+            else
+            {
+                let resultString = "|";
+                let newContList = []
+                for(let i = 0; i < 16; i++)
+                {
+                    let selectedIndex = Math.floor(Math.random() * contList.length);
+                    let selectedContender = contList[selectedIndex];
+                    newContList.push(selectedContender);
+                    contList.splice(selectedIndex, 1);
+                    if(i != 0)
+                        resultString += "^";
+                    resultString += selectedContender.key;
+                }
+                sentMessage = "Turnuva katılımcıları: " + resultString;
+            }
+        }
+        else if(tournament.status == 2)
+        {
+
+        }
+    }
     else if(command=="turnuvadurum" && words.length == 1)
     {
         let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
