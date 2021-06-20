@@ -44,7 +44,7 @@ const sequelize = new Sequelize(DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSW
 
 const Tournaments = sequelize.define("tournaments", {
     guildID: { type: Sequelize.STRING, },
-    contenders: { type: Sequelize.STRING, },
+    contenders: { type: Sequelize.STRING(2048), },
     channel: { type: Sequelize.STRING, },
     status: { type: Sequelize.INTEGER, }
 })
@@ -611,6 +611,20 @@ client.on("message", async mess=>{
         else if(tournament.status == 1 && tournamentJob != null)
         {
             tournamentJob.stop();
+        }
+    }
+    else if(command=="turnuvabitir" && mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        if(tournament == null)
+        {
+            sentMessage = "Duraklatacak bir turnuva yok!";
+        }
+        else
+        {
+            await Tournaments.update({status: 0}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+            if(tournamentJob != null)
+                tournamentJob.stop();
         }
     }
     else if(command=="turnuvadurum" && words.length == 1)
