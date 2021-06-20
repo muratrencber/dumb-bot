@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "canvas": "^2.8.0",
+    "cron": "^1.8.2",
     "discord.js": "^12.5.1",
     "imdb-api": "^4.4.1",
     "imdb-node-api": "^0.1.0",

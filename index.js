@@ -1,6 +1,7 @@
 const Discord=require("discord.js");
 const Canvas = require('canvas');
 const Sequelize=require("sequelize");
+const cron = require('cron');
 
 const client=new Discord.Client();
 const TOKEN =  process.env.BOT_TOKEN || "";
@@ -19,7 +20,9 @@ const urlExist = require("url-exist-sync");
 
 let channel = null;
 let guildid = "";
+let tournamentJob;
 
+const MURAT_ID = "300626846221860867";
 const KINOBOT_ID = process.env.KINOBOT_ID || "718996755596967966";
 const KINOCHANNEL_ID = process.env.KINOCHANNEL_ID || "826466952200716298";
 const DATABASE_NAME = process.env.DATABASE_NAME || "testdatabase";
@@ -76,7 +79,11 @@ const Contenders = sequelize.define("contenders",{
     guildID:
     {
         type: Sequelize.STRING,
-    }
+    },
+    imageURL:
+    {
+        type: Sequelize.STRING,
+    },
 });
 const Items = sequelize.define("items", {
     key: {
@@ -110,7 +117,11 @@ const Items = sequelize.define("items", {
     guildID:
     {
         type: Sequelize.STRING,
-    }
+    },
+    imageURL:
+    {
+        type: Sequelize.STRING,
+    },
 })
 
 client.once("ready", ()=>{
@@ -329,6 +340,7 @@ client.on("message", async mess=>{
             let targetItem = await FindItem(targetContender.item, guildid);
             let itemName = targetItem != null ? targetItem.name : "Yok";
             sentMessage="İsim: "+targetContender.name+"\n"+
+            "Resim: "+targetContender.imageURL+"\n"+
             "Güç: "+targetContender.strength+(targetItem!=null?(", Ek ile: "+(targetContender.strength+targetItem.strength)):"")+"\n"+
             "Zeka: "+targetContender.intelligence+(targetItem!=null?(", Ek ile: "+(targetContender.intelligence+targetItem.intelligence)):"")+"\n"+
             "Çeviklik: "+targetContender.agility+(targetItem!=null?(", Ek ile: "+(targetContender.agility+targetItem.agility)):"")+"\n"+
@@ -342,6 +354,7 @@ client.on("message", async mess=>{
             if(targetItem != null) {
                 sentMessage="Key: "+targetItem.key+"\n"+
                 "İsim: "+targetItem.name+"\n"+
+                "Resim: "+targetItem.imageURL+"\n"+
                 "Güç eklemesi: "+targetItem.strength+"\n"+
                 "Zeka eklemesi: "+targetItem.intelligence+"\n"+
                 "Çeviklik eklemesi: "+targetItem.agility+"\n"+
@@ -383,7 +396,7 @@ client.on("message", async mess=>{
         console.log(args1.length);
         if(args1.length==3)
         {
-            let keyName = args1[0].replace('"',"").replace(" ","");
+            let keyName = args1[0].replace('"',"").replace(" ","").replace("^","").replace("[","").replace("]","");
             let existingItem = await FindItem(keyName, guildid);
             if(existingItem && existingItem.guildID == channel.guild.id)
             {
@@ -436,7 +449,7 @@ client.on("message", async mess=>{
         let args1 = afterCommand.split('" ');
         if(args1.length==2)
         {
-            let contenderName = args1[0].replace('"',"");
+            let contenderName = args1[0].replace('"',"").replace("^","").replace("[","").replace("]","");
             let existingContender=await FindContender(contenderName, guildid);
             if(existingContender && existingContender.guildID == channel.guild.id)
             {
@@ -482,6 +495,24 @@ client.on("message", async mess=>{
             sentMessage=":thinking: Komutu yarım bırakmış gibisin, girdilerini kontrol et."
         }
         
+    }
+    else if(command=="savaşçıresmiekle"&& mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let commands = afterCommand.split(" ");
+        let existingContender = await FindContender(commands[0], guildid);
+        if(existingContender != null && (existingContender.guildID == guildid || mess.member.id == MURAT_ID))
+        {
+            await Contenders.update({imageURL: commands[1]}, {where: {name: existingContender.name}});
+        }
+    }
+    else if(command=="eşyaresmiekle"&& mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let commands = afterCommand.split(" ");
+        let existingItem = await FindItem(commands[0], guildid);
+        if(existingItem != null && (existingItem.guildID == guildid || mess.member.id == MURAT_ID))
+        {
+            await Items.update({imageURL: afterCommand}, {where: {key: existingContender.key}});
+        }
     }
     else if(command=="sil"&& mess.member.hasPermission("ADMINISTRATOR"))
     {
@@ -532,6 +563,7 @@ client.on("message", async mess=>{
         else if(tournament.status == 0)
         {
             let contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
+            let itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
             if(contList.length < 16)
             {
                 sentMessage = "Yeterli savaşçıya sahip değilsiniz. _(En az 16)_";
@@ -544,18 +576,41 @@ client.on("message", async mess=>{
                 {
                     let selectedIndex = Math.floor(Math.random() * contList.length);
                     let selectedContender = contList[selectedIndex];
+                    let itemKey = "";
+                    if(Math.random() * 100 > 50 && itemList.length > 0)
+                    {
+                        let selectedItemIndex = Math.floor(Math.random() * itemList.length);
+                        itemKey = itemList[selectedItemIndex].key;
+                        itemList.splice(selectedItemIndex, 1);
+                    }
                     newContList.push(selectedContender);
                     contList.splice(selectedIndex, 1);
                     if(i != 0)
                         resultString += "^";
-                    resultString += selectedContender.key;
+                    resultString += selectedContender.name + "["+itemKey+"]";
                 }
-                sentMessage = "Turnuva katılımcıları: " + resultString;
+                await Tournaments.update({contenders: resultString, status: 1}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
             }
         }
         else if(tournament.status == 2)
         {
 
+        }
+    }
+    else if(command=="debug_turnuva" && mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        MakeTournamentVersus();
+    }
+    else if(command=="turnuvaduraklat" && mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        if(tournament == null)
+        {
+            sentMessage = "Duraklatacak bir turnuva yok!";
+        }
+        else if(tournament.status == 1 && tournamentJob != null)
+        {
+            tournamentJob.stop();
         }
     }
     else if(command=="turnuvadurum" && words.length == 1)
@@ -619,6 +674,61 @@ client.on("ready", ()=>{
 		SendMessage("mal umut", targetChannel);
     }
 })*/
+async function ShowTournamentStatus()
+{
+    let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+    if(tournament != null)
+    {
+        channel.send("DURUM: "+ tournament.contenders);
+    }
+}
+
+async function MakeTournamentVersus()
+{
+    let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+    if(tournament != null)
+    {
+        let originalString = tournament.contenders;
+        channel.send("ORIGINAL STRING: " + originalString);
+        let tournamentString = originalString.split("|")[1];
+        let elements = tournamentString.split("^");
+
+        let contender1Name = elements[0].split("[")[0];
+        let contender1Item = elements[0].split("[")[1].split("]")[0];
+        channel.send("CONT1NAME: " + contender1Name + ", CONT1ITEM: " + contender1Item);
+
+        let contender2Name = elements[1].split("[")[0];
+        let contender2Item = elements[1].split("[")[1].split("]")[0];
+        channel.send("CONT2NAME: " + contender2Name + ", CONT2ITEM: " + contender2Item);
+
+        let contender1 = await FindContender(contender1Name, guildid);
+        let contender2 = await FindContender(contender2Name, guildid);
+        let item1 = contender1Item == "" ? null : FindItem(contender1Item, guildid);
+        let item2 = contender2Item == "" ? null : FindItem(contender2Item, guildid);
+
+        let results = await MakeVersusTournament(contender1, contender2, item1, item2);
+        let isLast = elements.length == 2;
+
+        channel.send(results[2]);
+        let newString = originalString.split("|")[0];
+        for(let i = 0; i < elements.length; i++)
+        {
+            newString += elements[i];
+            if(i < elements.length - 1)
+                newString += "^";
+            if(i == 1)
+                newString += "|";
+        }
+        channel.send("NEW CONTENDER STRING: " + newString);
+        let status = isLast ? 0 : 1;
+        await Tournaments.update({contenders: newString, status: status}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+    }
+    else if(tournamentJob != null)
+    {
+        tournamentJob.stop();
+    }
+}
+
 function ReassembleWords(wordArray, startIndex = 0)
 {
     let str = "";
@@ -630,10 +740,12 @@ function ReassembleWords(wordArray, startIndex = 0)
     }
     return str;
 }
+
 function ShowHelp()
 {
     return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!emoji <isim> -> Emoji gönderir. \n!emoji liste -> Mevcut emojileri listeler. \n!kino <film ismi> -> IMDb veritabanında bulduğu filmi döndürür (ŞU ANLIK KAPALI). \n!avatar <kullanıcıadı/id/etiket> Belirtilen üyenin profil resmini döndürür.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!ws <savaşçı1>;<eşya1>;<savaşçı2>;<eşya2> -> Belirtilen savaşçılar ve eşyalar ile versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.```';
 }
+
 function SendMessage(message, channel)
 {
     channel.startTyping(1);
@@ -641,6 +753,79 @@ function SendMessage(message, channel)
         channel.send(message);
         channel.stopTyping(true);
     }, (1+(Math.random()*0.5))*1000);
+}
+
+async function MakeVersusTournament(contender1, contender2, item1=null, item2=null)
+{
+    let message = contender1.name+" vs "+contender2.name +"\n";
+    let stats1 ={str: 0, agi:0, int:0, char:0, hp:0};
+    stats1.str = contender1.strength;
+    stats1.agi = contender1.agility;
+    stats1.int = contender1.intelligence;
+    stats1.char = contender1.charisma;
+    stats1.hp = contender1.health;
+    if(item1==null)
+        item1 = await FindItem(contender1.item, guildid);
+    if(item1 != null)
+    {
+        stats1.str += item1.strength;
+        stats1.agi += item1.agility;
+        stats1.int += item1.intelligence;
+        stats1.char += item1.charisma;
+        stats1.hp += item1.health;
+    }
+    let stats2 ={str: 0, agi:0, int:0, char:0, hp:0};
+    stats2.str = contender2.strength;
+    stats2.agi = contender2.agility;
+    stats2.int = contender2.intelligence;
+    stats2.char = contender2.charisma;
+    stats2.hp = contender2.health;
+    if(item2==null)
+        item2 = await FindItem(contender2.item, guildid);
+    if(item2 != null)
+    {
+        stats2.str += item2.strength;
+        stats2.agi += item2.agility;
+        stats2.int += item2.intelligence;
+        stats2.char += item2.charisma;
+        stats2.hp += item2.health;
+    }
+    let turn = Math.floor(Math.random()*2);
+    while(stats1.hp > 0 && stats2.hp > 0)
+    {
+        turn = turn%2;
+        if(turn == 0)
+        {
+            let damage = stats1.strength + Math.floor(Math.random()*13);
+            let defence = Math.max(0, Math.ceil((Math.sign(stats2.agi)*stats2.agi*stats2.agi+Math.sign(stats2.char)*stats2.char*stats2.char+Math.sign(stats2.int)*stats2.int*stats2.int)/(Math.abs(stats2.agi)+Math.abs(stats2.char)+Math.abs(stats2.int))));
+            damage = Math.max(damage-defence, 0);
+            stats2.hp -= damage;
+        }
+        else
+        {
+            let damage = stats2.strength + Math.floor(Math.random()*13);
+            let defence = Math.max(0, Math.ceil((Math.sign(stats1.agi)*stats1.agi*stats1.agi+Math.sign(stats1.char)*stats1.char*stats1.char+Math.sign(stats1.int)*stats1.int*stats1.int)/(Math.abs(stats1.agi)+Math.abs(stats1.char)+Math.abs(stats1.int))));
+            damage = Math.max(damage-defence, 0);
+            stats1.hp -= damage;
+        }
+        turn++;
+    }
+    let result = new Array(3);
+    let winner = contender1;
+    let loser = contender2;
+    let winItem = item1;
+    if(stats1.hp > 0 || stats2.hp > 0)
+    {
+        winner = stats1.hp > 0 ? contender1 : contender2;
+        loser = stats1.hp > 0 ? contender2 : contender1;
+        winItem = stats1.hp > 0 ? item1 : item2;
+    }
+    let itemDesc = winItem != null ? winItem.name + " ile " : "";
+    message += "SONUÇ: "+loser.name+", rakibi "+winner.name+" tarafından "+itemDesc+"öldürüldü.";
+    result[0] = winner;
+    result[1] = loser;
+    result[2] = message;
+    return result;
 }
 
 async function MakeVersus(contender1, contender2, item1=null, item2=null)
