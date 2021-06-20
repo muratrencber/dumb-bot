@@ -114,7 +114,7 @@ const Items = sequelize.define("items", {
 })
 
 client.once("ready", ()=>{
-    //sequelize.sync({alter: true});
+    sequelize.sync({alter: true});
 });
 
 client.on("message", async mess=>{
