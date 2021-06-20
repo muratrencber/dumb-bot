@@ -690,7 +690,7 @@ client.on("ready", ()=>{
 })*/
 async function ShowTournamentStatus()
 {
-    let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+    let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:guildid}}});
     if(tournament != null)
     {
         channel.send("DURUM: "+ tournament.contenders);
@@ -699,7 +699,7 @@ async function ShowTournamentStatus()
 
 async function MakeTournamentVersus()
 {
-    let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+    let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:guildid}}});
     if(tournament != null)
     {
         let originalString = tournament.contenders;
