@@ -39,6 +39,12 @@ const sequelize = new Sequelize(DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSW
 	},
 });
 
+const Tournaments = sequelize.define("tournaments", {
+    guildID: { type: Sequelize.STRING, },
+    contenders: { type: Sequelize.STRING, },
+    channel: { type: Sequelize.STRING, },
+    status: { type: Sequelize.INTEGER, }
+})
 const Contenders = sequelize.define("contenders",{
     name: {
         type: Sequelize.STRING,
@@ -491,6 +497,37 @@ client.on("message", async mess=>{
         else
         {
             sentMessage="Savaşçı başarıyla silindi."
+        }
+    }
+    else if(command=="turnuvakanal" && mess.mentions.channels.first() != null && mess.mentions.channels.first().type == "text" && mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        let targetChannelID = mess.mentions.channels.first().id;
+        let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        if(tournament == null)
+        {
+            await Tournaments.create(
+            {
+                guildID: mess.guild.id,
+                contenders: "",
+                channel: targetChannelID,
+                status: 0,
+            })
+        }
+        else
+        {
+            await Tournaments.update({channel: targetChannelID}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        }
+    }
+    else if(command=="turnuvadurum" && words.length == 1)
+    {
+        let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        if(tournament == null)
+        {
+            sentMessage = "Bir turnuva yok! Oluşturmak için ilk önce turnuva kanalını belirleyin.";
+        }
+        else
+        {
+            sentMessage = "TURNUVA DURUMU:\n"+ (tournament.status == 0 ? "Başlamadı." : tournament.status == 1 ? "Devam ediyor." : "Duraklatıldı.") + "\nKatılımcılar: " + tournament.contenders;
         }
     }
     else if(command == "çıkratemizle" && mess.member.hasPermission("ADMINISTRATOR"))
