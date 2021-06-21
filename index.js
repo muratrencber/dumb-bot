@@ -714,7 +714,7 @@ async function ShowTournamentStatus(sendToTargetChannel = true)
     if(tournament != null)
     {
         let originalString = tournament.contenders;
-        let tournamentString = originalString.split("|")[1];
+        let tournamentString = originalString.replace("|", "");
         let elements = tournamentString.split("^"); //183*182
         let canvas = Canvas.createCanvas(1920, 1080);
         let context = canvas.getContext('2d');
@@ -784,9 +784,7 @@ async function MakeTournamentVersus()
         let newString = originalString.split("|")[0];
         for(let i = 0; i < elements.length; i++)
         {
-            newString += elements[i];
-            if(i < elements.length - 1)
-                newString += "^";
+            newString += elements[i] += "^";
             if(i == 1)
                 newString += "|";
         }
@@ -808,7 +806,7 @@ async function MakeTournamentVersus()
             targetChannel.send(infoMessage, attachment);
         }
 
-        newString += "^"+results[0].name+"["+winnerItemKey+"]";
+        newString += results[0].name+"["+winnerItemKey+"]";
         let isLast = newString.split("^").length == 15;
         let status = isLast ? 0 : 1;
 
