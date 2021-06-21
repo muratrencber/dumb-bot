@@ -599,6 +599,11 @@ client.on("message", async mess=>{
                 }
                 await Tournaments.update({contenders: resultString, status: 1}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
                 await ShowTournamentStatus(true);
+                if(tournamentJob != null)
+                {
+                    tournamentJob.stop();
+                    tournamentJob = null;
+                }
                 tournamentJob = new cron.CronJob(CRON_STR, MakeTournamentVersus);
                 tournamentJob.start();
             }
@@ -607,6 +612,11 @@ client.on("message", async mess=>{
         {
             channel.send("Duraklatılmış turnuva devam ettiriliyor...");
             await Tournaments.update({status: 1}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+            if(tournamentJob != null)
+            {
+                tournamentJob.stop();
+                tournamentJob = null;
+            }
             tournamentJob = new cron.CronJob(CRON_STR, MakeTournamentVersus);
             tournamentJob.start();
         }
@@ -916,14 +926,14 @@ async function MakeVersusTournament(contender1, contender2, item1=null, item2=nu
         if(turn == 0)
         {
             let damage = stats1.strength + Math.floor(Math.random()*13);
-            let defence = Math.max(0, Math.ceil((Math.sign(stats2.agi)*stats2.agi*stats2.agi+Math.sign(stats2.char)*stats2.char*stats2.char+Math.sign(stats2.int)*stats2.int*stats2.int)/(Math.abs(stats2.agi)+Math.abs(stats2.char)+Math.abs(stats2.int))));
+            let defence = Math.ceil((stats2.agi + stats2.char + stats2.int) / 5);
             damage = Math.max(damage-defence, 0);
             stats2.hp -= damage;
         }
         else
         {
             let damage = stats2.strength + Math.floor(Math.random()*13);
-            let defence = Math.max(0, Math.ceil((Math.sign(stats1.agi)*stats1.agi*stats1.agi+Math.sign(stats1.char)*stats1.char*stats1.char+Math.sign(stats1.int)*stats1.int*stats1.int)/(Math.abs(stats1.agi)+Math.abs(stats1.char)+Math.abs(stats1.int))));
+            let defence = Math.ceil((stats1.agi + stats1.char + stats1.int) / 5);
             damage = Math.max(damage-defence, 0);
             stats1.hp -= damage;
         }
@@ -993,14 +1003,14 @@ async function MakeVersus(contender1, contender2, item1=null, item2=null)
         if(turn == 0)
         {
             let damage = stats1.strength + Math.floor(Math.random()*13);
-            let defence = Math.max(0, Math.ceil((Math.sign(stats2.agi)*stats2.agi*stats2.agi+Math.sign(stats2.char)*stats2.char*stats2.char+Math.sign(stats2.int)*stats2.int*stats2.int)/(Math.abs(stats2.agi)+Math.abs(stats2.char)+Math.abs(stats2.int))));
+            let defence = Math.ceil((stats2.agi + stats2.char + stats2.int) / 5);
             damage = Math.max(damage-defence, 0);
             stats2.hp -= damage;
         }
         else
         {
             let damage = stats2.strength + Math.floor(Math.random()*13);
-            let defence = Math.max(0, Math.ceil((Math.sign(stats1.agi)*stats1.agi*stats1.agi+Math.sign(stats1.char)*stats1.char*stats1.char+Math.sign(stats1.int)*stats1.int*stats1.int)/(Math.abs(stats1.agi)+Math.abs(stats1.char)+Math.abs(stats1.int))));
+            let defence = Math.ceil((stats1.agi + stats1.char + stats1.int) / 5);
             damage = Math.max(damage-defence, 0);
             stats1.hp -= damage;
         }
