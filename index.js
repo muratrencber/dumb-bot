@@ -765,8 +765,8 @@ async function MakeTournamentVersus()
 
         let contender1 = await FindContender(contender1Name, guildid);
         let contender2 = await FindContender(contender2Name, guildid);
-        let item1 = contender1Item == "" ? null : FindItem(contender1Item, guildid);
-        let item2 = contender2Item == "" ? null : FindItem(contender2Item, guildid);
+        let item1 = contender1Item == "" ? null : await FindItem(contender1Item, guildid);
+        let item2 = contender2Item == "" ? null : await FindItem(contender2Item, guildid);
 
         let results = await MakeVersusTournament(contender1, contender2, item1, item2);
 
@@ -789,8 +789,8 @@ async function MakeTournamentVersus()
                 newString += "|";
         }
 
-        let winnerItemKey = results[2] != null ? results[2].key : "";
-        let loserItemKey = results[3] != null ? results[3].key : "";
+        let winnerItemKey = results[2] != null && results[2] != undefined ? results[2].key : "";
+        let loserItemKey = results[3] != null && results[3] != undefined ? results[3].key : "";
 
         if(loserItemKey != "" && (Math.random() * 100) > 90)
         {
