@@ -768,9 +768,6 @@ async function MakeTournamentVersus()
 
         let results = await MakeVersusTournament(contender1, contender2, item1, item2);
         
-        let originalString = tournament.contenders;
-        let tournamentString = originalString.split("|")[1];
-        let elements = tournamentString.split("^"); //183*182
         let canvas = Canvas.createCanvas(1024, 512);
         let context = canvas.getContext('2d');
         let winnerImage = await Canvas.loadImage(results[0].imageURL);
