@@ -739,7 +739,7 @@ async function ShowTournamentStatus(sendToTargetChannel = true)
         context.drawImage(borders, 0, 0, 1920, 1080);
         let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'turnuvadurum.jpg');
         if(sendToTargetChannel)
-            client.channels.fetch(tournament.channel).then(ch => ch.send("Güncel Turnuva Durumu:", attachment));
+            await client.channels.fetch(tournament.channel).then(ch => ch.send("Güncel Turnuva Durumu:", attachment));
         else
             channel.send("Güncel Turnuva Durumu:", attachment);
     }
@@ -813,9 +813,8 @@ async function MakeTournamentVersus()
 
         newString += results[0].name+"["+winnerItemKey+"]";
         let isLast = newString.split("^").length == 15;
-        let trnstats = isLast ? 0 : 1;
 
-        await Tournaments.update({contenders: newString, status: trnstats}, {where: {guildID: {[Sequelize.Op.like]:guildid}}});
+        await Tournaments.update({contenders: newString}, {where: {guildID: {[Sequelize.Op.like]:guildid}}});
         if(!isLast)
             await ShowTournamentStatus();
         else
@@ -826,6 +825,7 @@ async function MakeTournamentVersus()
             context.drawImage(winnerImage, 0, 0, 512, 512);
             attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'kazanan.jpg');
             targetChannel.send("KAZANAN: "+results[0].name, attachment);
+            await Tournaments.update({contenders: "", status: 0}, {where: {guildID: {[Sequelize.Op.like]:guildid}}});
             if(tournamentJob != null)
             {
                 tournamentJob.stop();
