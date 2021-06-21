@@ -3,6 +3,7 @@ const Canvas = require('canvas');
 const Sequelize=require("sequelize");
 const cron = require('cron');
 
+const CRON_STR = process.env.TOURNAMENT_JOB || "30 * * * * *";
 const client=new Discord.Client();
 const TOKEN =  process.env.BOT_TOKEN || "";
 const BOT_ID = process.env.BOT_ID || "787349305480577055";
@@ -605,12 +606,15 @@ client.on("message", async mess=>{
                     resultString += selectedContender.name + "["+itemKey+"]";
                 }
                 await Tournaments.update({contenders: resultString, status: 1}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
-                await ShowTournamentStatus();
+                await ShowTournamentStatus(true);
+                tournamentJob = new cron.CronJob(CRON_STR, MakeTournamentVersus);
+                tournamentJob.start();
             }
         }
         else if(tournament.status == 2)
         {
-
+            tournamentJob = new cron.CronJob(CRON_STR, MakeTournamentVersus);
+            tournamentJob.start();
         }
     }
     else if(command=="debug_turnuva" && mess.member.hasPermission("ADMINISTRATOR"))
@@ -627,6 +631,7 @@ client.on("message", async mess=>{
         else if(tournament.status == 1 && tournamentJob != null)
         {
             tournamentJob.stop();
+            tournamentJob = null;
         }
     }
     else if(command=="turnuvabitir" && mess.member.hasPermission("ADMINISTRATOR"))
@@ -640,7 +645,10 @@ client.on("message", async mess=>{
         {
             await Tournaments.update({status: 0}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
             if(tournamentJob != null)
+            {
                 tournamentJob.stop();
+                tournamentJob = null;
+            }
         }
     }
     else if(command=="turnuvadurum" && words.length == 1)
@@ -729,7 +737,7 @@ async function ShowTournamentStatus(sendToTargetChannel = true)
             if(selectedElement == null)
                 continue;
             let selectedImage = await Canvas.loadImage(selectedContender.imageURL);
-            context.drawImage(selectedImage, widthTable[i], heightTable[i], 183, 182);
+            context.drawImage(selectedImage, widthTable[i], heightTable[i], 183, 183);
         }
         context.drawImage(borders, 0, 0, 1920, 1080);
         let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'turnuvadurum.jpg');
@@ -821,6 +829,11 @@ async function MakeTournamentVersus()
             context.drawImage(winnerImage, 0, 0, 512, 512);
             attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'kazanan.jpg');
             targetChannel.send("KAZANAN: "+results[0].name, attachment);
+            if(tournamentJob != null)
+            {
+                tournamentJob.stop();
+                tournamentJob = null;
+            }
         }
     }
     else if(tournamentJob != null)
