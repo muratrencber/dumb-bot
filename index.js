@@ -133,16 +133,8 @@ client.on("message", async mess=>{
     channel = mess.channel;
     guildid = channel.guild.id;
     const message = mess.content;
-    /*if(channel.id == KINOCHANNEL_ID)
-    {
-        console.log("MENTLENGTH:"+mess.mentions.users.length);
-        console.log("FOUND:"+mess.mentions.users.find(KINOBOT_ID));
-        if(mess.member.id != KINOBOT_ID && (mess.mentions.users.length == 0 || mess.mentions.users.find(KINOBOT_ID) == null || mess.mentions.users.find(KINOBOT_ID) == undefined))
-        {
-            return;
-        }
-    }*/
-    if(message.charAt(0) != "!" || mess.author.id == BOT_ID)
+    let trnmnt = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+    if(message.charAt(0) != "!" || mess.author.id == BOT_ID || (trnmnt != null && trnmnt.channel == channel.id && mess.member.id != MURAT_ID))
     {
         return;
     }
@@ -613,6 +605,8 @@ client.on("message", async mess=>{
         }
         else if(tournament.status == 2)
         {
+            channel.send("Duraklatılmış turnuva devam ettiriliyor...");
+            await Tournaments.update({status: 1}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
             tournamentJob = new cron.CronJob(CRON_STR, MakeTournamentVersus);
             tournamentJob.start();
         }
@@ -630,6 +624,8 @@ client.on("message", async mess=>{
         }
         else if(tournament.status == 1 && tournamentJob != null)
         {
+            channel.send("Turnuva duraklatılıyor...");
+            await Tournaments.update({status: 2}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
             tournamentJob.stop();
             tournamentJob = null;
         }
@@ -643,6 +639,7 @@ client.on("message", async mess=>{
         }
         else
         {
+            channel.send("Turnuva bitirildi.");
             await Tournaments.update({status: 0}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
             if(tournamentJob != null)
             {
@@ -741,10 +738,10 @@ async function ShowTournamentStatus(sendToTargetChannel = true)
         }
         context.drawImage(borders, 0, 0, 1920, 1080);
         let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'turnuvadurum.jpg');
-        let targetChannel = channel;
         if(sendToTargetChannel)
-            client.channels.fetch(tournament.channel).then(ch => targetChannel = ch);
-        targetChannel.send("Güncel Turnuva Durumu:", attachment);
+            client.channels.fetch(tournament.channel).then(ch => ch.send("Güncel Turnuva Durumu:", attachment));
+        else
+            channel.send("Güncel Turnuva Durumu:", attachment);
     }
 }
 
@@ -839,6 +836,7 @@ async function MakeTournamentVersus()
     else if(tournamentJob != null)
     {
         tournamentJob.stop();
+        tournamentJob = null;
     }
 }
 
