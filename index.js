@@ -579,7 +579,7 @@ client.on("message", async mess=>{
         {
             let contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
             let itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
-            if(contList.length < 16)
+            if(contList.length < 8)
             {
                 sentMessage = "Yeterli savaşçıya sahip değilsiniz. _(En az 16)_";
             }
@@ -587,7 +587,7 @@ client.on("message", async mess=>{
             {
                 let resultString = "|";
                 let newContList = []
-                for(let i = 0; i < 16; i++)
+                for(let i = 0; i < 8; i++)
                 {
                     let selectedIndex = Math.floor(Math.random() * contList.length);
                     let selectedContender = contList[selectedIndex];
@@ -706,7 +706,7 @@ client.on("ready", ()=>{
 })*/
 
 var widthTable = [38, 277, 512, 749, 988, 1226, 1462, 1699, 160, 624, 1101, 1577, 377, 1321, 869];
-var heightTable = [42, 42, 42, 42, 42, 42, 42, 42, 287, 287, 287, 287, 634, 634, 866];
+var heightTable = [855, 855, 855, 855, 855, 855, 855, 855, 610, 610, 610, 610, 263, 263, 31];
 
 async function ShowTournamentStatus(sendToTargetChannel = true)
 {
@@ -767,7 +767,7 @@ async function MakeTournamentVersus()
         let item2 = contender2Item == "" ? null : FindItem(contender2Item, guildid);
 
         let results = await MakeVersusTournament(contender1, contender2, item1, item2);
-        
+
         let canvas = Canvas.createCanvas(1024, 512);
         let context = canvas.getContext('2d');
         let winnerImage = await Canvas.loadImage(results[0].imageURL);
