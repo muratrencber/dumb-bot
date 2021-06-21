@@ -585,7 +585,7 @@ client.on("message", async mess=>{
                     let selectedIndex = Math.floor(Math.random() * contList.length);
                     let selectedContender = contList[selectedIndex];
                     let itemKey = "";
-                    if(Math.random() * 100 > 50 && itemList.length > 0)
+                    if(Math.random() * 100 > 20 && itemList.length > 0)
                     {
                         let selectedItemIndex = Math.floor(Math.random() * itemList.length);
                         itemKey = itemList[selectedItemIndex].key;
@@ -819,7 +819,7 @@ async function MakeTournamentVersus()
         let winnerItemKey = results[2] != null && results[2] != undefined ? results[2].key : "";
         let loserItemKey = results[3] != null && results[3] != undefined ? results[3].key : "";
 
-        if(loserItemKey != "" && (Math.random() * 100) > 90)
+        if(loserItemKey != "" && (Math.random() * 100) > 30)
         {
             winnerItemKey = loserItemKey;
             let infoMessage = results[0].name +", " + results[3].name + " eşyasını aldı!";
