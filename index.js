@@ -82,7 +82,7 @@ const Contenders = sequelize.define("contenders",{
     },
     imageURL:
     {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(2048),
     },
 });
 const Items = sequelize.define("items", {
@@ -120,7 +120,7 @@ const Items = sequelize.define("items", {
     },
     imageURL:
     {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(2048),
     },
 })
 
@@ -498,20 +498,35 @@ client.on("message", async mess=>{
     }
     else if(command=="savaşçıresmiekle"&& mess.member.hasPermission("ADMINISTRATOR"))
     {
-        let commands = afterCommand.split(" ");
-        let existingContender = await FindContender(commands[0], guildid);
+        let lastSpaceIndex = afterCommand.lastIndexOf(" ");
+        let contenderName = afterCommand.splice(0, lastSpaceIndex);
+        let url = afterCommand.splice(lastSpaceIndex + 1);
+        let existingContender = await FindContender(contenderName, guildid);
         if(existingContender != null && (existingContender.guildID == guildid || mess.member.id == MURAT_ID))
         {
-            await Contenders.update({imageURL: commands[1]}, {where: {name: existingContender.name}});
+            await Contenders.update({imageURL: url}, {where: {name: existingContender.name, guildID: existingContender.guildID}});
+            sentMessage = "Değiştirildi!";
+        }
+        else if(existingContender == null)
+        {
+            sentMessage = "Böyle bir savaşçı yok!";
+            sentMessage = "Değiştirildi!";
         }
     }
     else if(command=="eşyaresmiekle"&& mess.member.hasPermission("ADMINISTRATOR"))
     {
-        let commands = afterCommand.split(" ");
-        let existingItem = await FindItem(commands[0], guildid);
+        let lastSpaceIndex = afterCommand.lastIndexOf(" ");
+        let itemName = afterCommand.splice(0, lastSpaceIndex);
+        let url = afterCommand.splice(lastSpaceIndex + 1);
+        let existingItem = await FindItem(itemName, guildid);
         if(existingItem != null && (existingItem.guildID == guildid || mess.member.id == MURAT_ID))
         {
-            await Items.update({imageURL: afterCommand}, {where: {key: existingContender.key}});
+            await Items.update({imageURL: url}, {where: {key: existingItem.key, guildID: existingItem.guildID}});
+            sentMessage = "Değiştirildi!";
+        }
+        else if(existingItem == null)
+        {
+            sentMessage = "Böyle bir eşya yok!";
         }
     }
     else if(command=="sil"&& mess.member.hasPermission("ADMINISTRATOR"))
@@ -709,16 +724,17 @@ async function MakeTournamentVersus()
 
         let contender1Name = elements[0].split("[")[0];
         let contender1Item = elements[0].split("[")[1].split("]")[0];
-        channel.send("CONT1NAME: " + contender1Name + ", CONT1ITEM: " + contender1Item);
+        channel.send("CONT1NAME: " + contender1Name + ", CONT1ITEMKEY: " + contender1Item);
 
         let contender2Name = elements[1].split("[")[0];
         let contender2Item = elements[1].split("[")[1].split("]")[0];
-        channel.send("CONT2NAME: " + contender2Name + ", CONT2ITEM: " + contender2Item);
+        channel.send("CONT2NAME: " + contender2Name + ", CONT2ITEMKEY: " + contender2Item);
 
         let contender1 = await FindContender(contender1Name, guildid);
         let contender2 = await FindContender(contender2Name, guildid);
         let item1 = contender1Item == "" ? null : FindItem(contender1Item, guildid);
         let item2 = contender2Item == "" ? null : FindItem(contender2Item, guildid);
+        channel.send("ITEM1: " + item1 + ", CONT2ITEM: " + item2);
 
         let results = await MakeVersusTournament(contender1, contender2, item1, item2);
         let isLast = elements.length == 2;
