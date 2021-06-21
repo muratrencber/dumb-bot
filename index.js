@@ -622,12 +622,23 @@ client.on("message", async mess=>{
         {
             sentMessage = "Duraklatacak bir turnuva yok!";
         }
-        else if(tournament.status == 1 && tournamentJob != null)
+        else if(tournament.status == 0)
+        {
+            channel.send("Turnuva başlatılmamış.");
+        }
+        else if(tournament.status == 2)
+        {
+            channel.send("Zaten duraklatılmış.");
+        }
+        else if(tournament.status == 1)
         {
             channel.send("Turnuva duraklatılıyor...");
             await Tournaments.update({status: 2}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
-            tournamentJob.stop();
-            tournamentJob = null;
+            if(tournamentJob != null)
+            {
+                tournamentJob.stop();
+                tournamentJob = null;
+            }
         }
     }
     else if(command=="turnuvabitir" && mess.member.hasPermission("ADMINISTRATOR"))
@@ -657,6 +668,7 @@ client.on("message", async mess=>{
         }
         else
         {
+            channel.send("Durum: " + (tournament.status == 0 ? "Başlatılmamış" : tournament.status == 1 ? "Devam ediyor." : "Duraklatılmış"));
             await ShowTournamentStatus(false);
         }
     }
