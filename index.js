@@ -605,6 +605,7 @@ client.on("message", async mess=>{
                     resultString += selectedContender.name + "["+itemKey+"]";
                 }
                 await Tournaments.update({contenders: resultString, status: 1}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+                await ShowTournamentStatus();
             }
         }
         else if(tournament.status == 2)
@@ -651,7 +652,7 @@ client.on("message", async mess=>{
         }
         else
         {
-            sentMessage = "TURNUVA DURUMU:\n"+ (tournament.status == 0 ? "Başlamadı." : tournament.status == 1 ? "Devam ediyor." : "Duraklatıldı.") + "\nKatılımcılar: " + tournament.contenders;
+            await ShowTournamentStatus(false);
         }
     }
     else if(command == "çıkratemizle" && mess.member.hasPermission("ADMINISTRATOR"))
@@ -703,43 +704,84 @@ client.on("ready", ()=>{
 		SendMessage("mal umut", targetChannel);
     }
 })*/
-async function ShowTournamentStatus()
+
+var widthTable = [38, 277, 512, 749, 988, 1226, 1462, 1699, 160, 624, 1101, 1577, 377, 1321, 869];
+var heightTable = [42, 42, 42, 42, 42, 42, 42, 42, 287, 287, 287, 287, 634, 634, 866];
+
+async function ShowTournamentStatus(sendToTargetChannel = true)
 {
     let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:guildid}}});
     if(tournament != null)
     {
-        channel.send("DURUM: "+ tournament.contenders);
+        let originalString = tournament.contenders;
+        let tournamentString = originalString.split("|")[1];
+        let elements = tournamentString.split("^"); //183*182
+        let canvas = Canvas.createCanvas(1920, 1080);
+        let context = canvas.getContext('2d');
+        let background = await Canvas.loadImage('https://sunstruck.games/dumb/versus/background.jpg');
+        let borders = await Canvas.loadImage('https://sunstruck.games/dumb/versus/borders.png');
+        context.drawImage(background, 0, 0, 1920, 1080);
+        for(let i = 0; i < elements.length; i++)
+        {
+            let selectedElement = elements[i];
+            let contenderName = selectedElement.split("[")[0];
+            let selectedContender = await FindContender(contenderName, guildid);
+            if(selectedElement == null)
+                continue;
+            let selectedImage = await Canvas.loadImage(selectedContender.imageURL);
+            context.drawImage(selectedImage, widthTable[i], heightTable[i], 183, 182);
+        }
+        context.drawImage(borders, 0, 0, 1920, 1080);
+        let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'turnuvadurum.jpg');
+        let targetChannel = sendToTargetChannel ? client.channels.fetch(tournament.channel) : channel;
+        targetChannel.send("Güncel Turnuva Durumu:", attachment);
     }
 }
 
 async function MakeTournamentVersus()
 {
     let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:guildid}}});
+    
+    let targetChannel = channel;
     if(tournament != null)
+        targetChannel = client.channels.fetch(tournament.channel);
+    if(tournament != null && tournament.status == 0)
+    {
+        targetChannel.send("Turnuva oluşturulmadı!");
+    }
+    else if(tournament != null)
     {
         let originalString = tournament.contenders;
-        channel.send("ORIGINAL STRING: " + originalString);
         let tournamentString = originalString.split("|")[1];
         let elements = tournamentString.split("^");
 
         let contender1Name = elements[0].split("[")[0];
         let contender1Item = elements[0].split("[")[1].split("]")[0];
-        channel.send("CONT1NAME: " + contender1Name + ", CONT1ITEMKEY: " + contender1Item);
 
         let contender2Name = elements[1].split("[")[0];
         let contender2Item = elements[1].split("[")[1].split("]")[0];
-        channel.send("CONT2NAME: " + contender2Name + ", CONT2ITEMKEY: " + contender2Item);
 
         let contender1 = await FindContender(contender1Name, guildid);
         let contender2 = await FindContender(contender2Name, guildid);
         let item1 = contender1Item == "" ? null : FindItem(contender1Item, guildid);
         let item2 = contender2Item == "" ? null : FindItem(contender2Item, guildid);
-        channel.send("ITEM1: " + item1 + ", CONT2ITEM: " + item2);
 
         let results = await MakeVersusTournament(contender1, contender2, item1, item2);
-        let isLast = elements.length == 2;
+        
+        let originalString = tournament.contenders;
+        let tournamentString = originalString.split("|")[1];
+        let elements = tournamentString.split("^"); //183*182
+        let canvas = Canvas.createCanvas(1024, 512);
+        let context = canvas.getContext('2d');
+        let winnerImage = await Canvas.loadImage(results[0].imageURL);
+        let loserImage = await Canvas.loadImage(results[1].imageURL);
+        let loserCross = await Canvas.loadImage("https://sunstruck.games/dumb/versus/loser.png");
+        context.drawImage(winnerImage, 0, 0, 512, 512);
+        context.drawImage(loserImage, 512, 0, 512, 512);
+        context.drawImage(loserCross, 512, 0, 512, 512);
+        let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'versussonuc.jpg');
+        targetChannel.send(results[4], attachment);
 
-        channel.send(results[2]);
         let newString = originalString.split("|")[0];
         for(let i = 0; i < elements.length; i++)
         {
@@ -749,9 +791,40 @@ async function MakeTournamentVersus()
             if(i == 1)
                 newString += "|";
         }
-        channel.send("NEW CONTENDER STRING: " + newString);
+
+        let winnerItemKey = results[2] != null ? results[2].key : "";
+        let loserItemKey = results[3] != null ? results[3].key : "";
+
+        if(loserItemKey != "" && (Math.random() * 100) > 90)
+        {
+            winnerItemKey = loserItemKey;
+            let infoMessage = results[0].name +", " + results[3].name + " eşyasını aldı!";
+            canvas = Canvas.createCanvas(1024, 512);
+            context = canvas.getContext('2d');
+            winnerImage = await Canvas.loadImage(results[0].imageURL);
+            itemImage = await Canvas.loadImage(results[3].imageURL);
+            context.drawImage(winnerImage, 0, 0, 512, 512);
+            context.drawImage(itemImage, 512, 0, 512, 512);
+            attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'esyaalim.jpg');
+            targetChannel.send(infoMessage, attachment);
+        }
+
+        newString += "^"+results[0].name+"["+winnerItemKey+"]";
+        let isLast = newString.split("^").length == 15;
         let status = isLast ? 0 : 1;
+
         await Tournaments.update({contenders: newString, status: status}, {where: {guildID: {[Sequelize.Op.like]:guildid}}});
+        if(!isLast)
+            await ShowTournamentStatus();
+        else
+        {
+            canvas = Canvas.createCanvas(512, 512);
+            context = canvas.getContext('2d');
+            winnerImage = await Canvas.loadImage(results[0].imageURL);
+            context.drawImage(winnerImage, 0, 0, 512, 512);
+            attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'kazanan.jpg');
+            targetChannel.send("KAZANAN: "+results[0].name, attachment);
+        }
     }
     else if(tournamentJob != null)
     {
@@ -836,21 +909,25 @@ async function MakeVersusTournament(contender1, contender2, item1=null, item2=nu
         }
         turn++;
     }
-    let result = new Array(3);
+    let result = new Array(4);
     let winner = contender1;
     let loser = contender2;
+    let loseItem = item2;
     let winItem = item1;
     if(stats1.hp > 0 || stats2.hp > 0)
     {
         winner = stats1.hp > 0 ? contender1 : contender2;
         loser = stats1.hp > 0 ? contender2 : contender1;
         winItem = stats1.hp > 0 ? item1 : item2;
+        loseItem = stats1.hp > 0 ? item2 : item1;
     }
     let itemDesc = winItem != null ? winItem.name + " ile " : "";
     message += "SONUÇ: "+loser.name+", rakibi "+winner.name+" tarafından "+itemDesc+"öldürüldü.";
     result[0] = winner;
     result[1] = loser;
-    result[2] = message;
+    result[2] = winItem;
+    result[3] = loseItem;
+    result[4] = message;
     return result;
 }
 
