@@ -813,9 +813,9 @@ async function MakeTournamentVersus()
 
         newString += results[0].name+"["+winnerItemKey+"]";
         let isLast = newString.split("^").length == 15;
-        let status = isLast ? 0 : 1;
+        let trnstats = isLast ? 0 : 1;
 
-        await Tournaments.update({contenders: newString, status: status}, {where: {guildID: {[Sequelize.Op.like]:guildid}}});
+        await Tournaments.update({contenders: newString, status: trnstats}, {where: {guildID: {[Sequelize.Op.like]:guildid}}});
         if(!isLast)
             await ShowTournamentStatus();
         else
@@ -854,7 +854,7 @@ function ReassembleWords(wordArray, startIndex = 0)
 
 function ShowHelp()
 {
-    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!emoji <isim> -> Emoji gönderir. \n!emoji liste -> Mevcut emojileri listeler. \n!kino <film ismi> -> IMDb veritabanında bulduğu filmi döndürür (ŞU ANLIK KAPALI). \n!avatar <kullanıcıadı/id/etiket> Belirtilen üyenin profil resmini döndürür.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!ws <savaşçı1>;<eşya1>;<savaşçı2>;<eşya2> -> Belirtilen savaşçılar ve eşyalar ile versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.```';
+    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!emoji <isim> -> Emoji gönderir. \n!emoji liste -> Mevcut emojileri listeler. \n!kino <film ismi> -> IMDb veritabanında bulduğu filmi döndürür (ŞU ANLIK KAPALI). \n!avatar <kullanıcıadı/id/etiket> Belirtilen üyenin profil resmini döndürür.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!ws <savaşçı1>;<eşya1>;<savaşçı2>;<eşya2> -> Belirtilen savaşçılar ve eşyalar ile versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n!turnuvadurum -> Mevcut turnuva durumunu gösterir.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.\n!savaşçıresmiekle <savaşçıismi> <url>\n!eşyaresmiekle <eşyakey> <url>\n!turnuvakanal <kanal> -> Turnuva sonuçlarının gönderileceği kanalı belirler.\n!turnuvabaşlat -> Turnuva başlatır.\n!turnuvaduraklat -> Başlamış turnuvayı duraklatır.\n!turnuvabitir -> Başlamış turnuvayı sonlandırır.```';
 }
 
 function SendMessage(message, channel)
