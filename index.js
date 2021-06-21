@@ -499,8 +499,8 @@ client.on("message", async mess=>{
     else if(command=="savaşçıresmiekle"&& mess.member.hasPermission("ADMINISTRATOR"))
     {
         let lastSpaceIndex = afterCommand.lastIndexOf(" ");
-        let contenderName = afterCommand.splice(0, lastSpaceIndex);
-        let url = afterCommand.splice(lastSpaceIndex + 1);
+        let contenderName = afterCommand.slice(0, lastSpaceIndex);
+        let url = afterCommand.slice(lastSpaceIndex + 1);
         let existingContender = await FindContender(contenderName, guildid);
         if(existingContender != null && (existingContender.guildID == guildid || mess.member.id == MURAT_ID))
         {
@@ -516,8 +516,8 @@ client.on("message", async mess=>{
     else if(command=="eşyaresmiekle"&& mess.member.hasPermission("ADMINISTRATOR"))
     {
         let lastSpaceIndex = afterCommand.lastIndexOf(" ");
-        let itemName = afterCommand.splice(0, lastSpaceIndex);
-        let url = afterCommand.splice(lastSpaceIndex + 1);
+        let itemName = afterCommand.slice(0, lastSpaceIndex);
+        let url = afterCommand.slice(lastSpaceIndex + 1);
         let existingItem = await FindItem(itemName, guildid);
         if(existingItem != null && (existingItem.guildID == guildid || mess.member.id == MURAT_ID))
         {
