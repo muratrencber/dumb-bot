@@ -733,7 +733,9 @@ async function ShowTournamentStatus(sendToTargetChannel = true)
         }
         context.drawImage(borders, 0, 0, 1920, 1080);
         let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'turnuvadurum.jpg');
-        let targetChannel = sendToTargetChannel ? client.channels.fetch(tournament.channel) : channel;
+        let targetChannel = channel;
+        if(sendToTargetChannel)
+            client.channels.fetch(tournament.channel).then(ch => targetChannel = ch);
         targetChannel.send("Güncel Turnuva Durumu:", attachment);
     }
 }
@@ -744,7 +746,7 @@ async function MakeTournamentVersus()
     
     let targetChannel = channel;
     if(tournament != null)
-        targetChannel = client.channels.fetch(tournament.channel);
+        client.channels.fetch(tournament.channel).then(ch => targetChannel = ch);
     if(tournament != null && tournament.status == 0)
     {
         targetChannel.send("Turnuva oluşturulmadı!");
