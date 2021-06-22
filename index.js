@@ -572,7 +572,7 @@ client.on("message", async mess=>{
         {
             await StartTournament(afterCommand);
         }
-        else if(tournament.status == 2)
+        else if(tournament.status == 2 || tournamentJob == null)
         {
             channel.send("Duraklatılmış turnuva devam ettiriliyor...");
             await Tournaments.update({status: 1}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
@@ -655,7 +655,7 @@ client.on("message", async mess=>{
         }
         else
         {
-            channel.send("Durum: " + (tournament.status == 0 ? "Başlatılmamış" : tournament.status == 1 ? "Devam ediyor." : "Duraklatılmış"));
+            channel.send("Durum: " + (tournament.status == 0 ? "Başlatılmamış" : tournament.status == 2 || tournamentJob == null ? "Duraklatılmış." : "Devam Ediyor."));
             await ShowTournamentStatus(false);
         }
     }
