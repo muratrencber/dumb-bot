@@ -743,6 +743,8 @@ async function StartTournament(afterCommand)
             words.push(currentWord);
             currentWord = "";
         }
+        else
+            currentWord += chr;
     }
 
     for(let i = 0; i < words.length; i++)
