@@ -559,6 +559,7 @@ client.on("message", async mess=>{
     }
     else if(command=="turnuvabaşlat" && mess.member.hasPermission("ADMINISTRATOR"))
     {
+        console.log("TURNUVABAŞLAT KOMUTU ÇALIŞIYOR...");
         let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
         if(tournament == null)
         {
@@ -587,7 +588,7 @@ client.on("message", async mess=>{
     }
     else if(command="turnuvatekrar" && mess.member.hasPermission("ADMINISTRATOR"))
     {
-        
+        console.log("TURNUVATEKRAR KOMUTU ÇALIŞIYOR...");
         let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
         if(tournament == null)
         {
@@ -600,6 +601,7 @@ client.on("message", async mess=>{
     }
     else if(command=="debug_turnuva" && mess.member.hasPermission("ADMINISTRATOR"))
     {
+        console.log("DEBUG_TURNUVA KOMUTU ÇALIŞIYOR...");
         await MakeTournamentVersus();
     }
     else if(command=="turnuvaduraklat" && mess.member.hasPermission("ADMINISTRATOR"))
