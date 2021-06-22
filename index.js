@@ -586,7 +586,7 @@ client.on("message", async mess=>{
             tournamentJob.start();
         }
     }
-    else if(command="turnuvatekrar" && mess.member.hasPermission("ADMINISTRATOR"))
+    else if(command == "turnuvatekrar" && mess.member.hasPermission("ADMINISTRATOR"))
     {
         console.log("TURNUVATEKRAR KOMUTU ÇALIŞIYOR...");
         let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
