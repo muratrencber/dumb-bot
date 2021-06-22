@@ -724,7 +724,8 @@ async function StartTournament(afterCommand)
         let chr = afterCommand.charAt(i);
         if(chr == "*")
         {
-            while(true && i < afterCommand.length)
+            let startWord = true;
+            while(startWord && i < afterCommand.length)
             {
                 i++;
                 chr = afterCommand.charAt(i);
@@ -732,7 +733,7 @@ async function StartTournament(afterCommand)
                 {
                     words.push(currentWord);
                     currentWord = "";
-                    break;
+                    startWord = false;
                 }
                 else
                     currentWord += chr;
