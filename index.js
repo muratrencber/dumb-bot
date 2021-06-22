@@ -724,7 +724,7 @@ async function StartTournament(afterCommand)
         let chr = afterCommand.charAt(i);
         if(chr == "*")
         {
-            while(true && i >= afterCommand.length)
+            while(true && i < afterCommand.length)
             {
                 i++;
                 chr = afterCommand.charAt(i);
