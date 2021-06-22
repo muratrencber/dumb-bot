@@ -600,7 +600,7 @@ client.on("message", async mess=>{
     }
     else if(command=="debug_turnuva" && mess.member.hasPermission("ADMINISTRATOR"))
     {
-        MakeTournamentVersus();
+        await MakeTournamentVersus();
     }
     else if(command=="turnuvaduraklat" && mess.member.hasPermission("ADMINISTRATOR"))
     {
