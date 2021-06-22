@@ -584,7 +584,7 @@ client.on("message", async mess=>{
             }
             if(contList.length < 8)
             {
-                sentMessage = "Yeterli savaşçıya sahip değilsiniz. _(En az 16)_";
+                sentMessage = "Yeterli savaşçıya sahip değilsiniz. _(En az 8)_";
             }
             else
             {
