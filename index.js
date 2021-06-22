@@ -722,14 +722,14 @@ async function StartTournament(afterCommand)
     for(let i = 0; i < afterCommand.length; i++)
     {
         let chr = afterCommand.charAt(i);
-        if(chr == "*")
+        if(chr == ";")
         {
             let startWord = true;
             while(startWord && i < afterCommand.length)
             {
                 i++;
                 chr = afterCommand.charAt(i);
-                if(chr == "*")
+                if(chr == ";")
                 {
                     words.push(currentWord);
                     currentWord = "";
@@ -739,10 +739,11 @@ async function StartTournament(afterCommand)
                     currentWord += chr;
             }
         }
-        else if(chr == " " && currentWord.length > 0)
+        else if(chr == " ")
         {
-            words.push(currentWord);
-            currentWord = "";
+            if(currentWord.length > 0)
+                words.push(currentWord);
+                currentWord = "";
         }
         else
             currentWord += chr;
@@ -766,7 +767,7 @@ async function StartTournament(afterCommand)
     {
         debug_str += i+ ": "+words[i] +"\n";
     }
-    channel.send(debug_str);
+    console.log(debug_str);
 
     if(!specialToServer)
     {
