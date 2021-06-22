@@ -570,53 +570,7 @@ client.on("message", async mess=>{
         }
         else if(tournament.status == 0)
         {
-            let contList;
-            let itemList;
-            if(words.length == 1 || afterCommand != "-ss")
-            {
-                contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
-                itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
-            }
-            else
-            {
-                contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.like]:channel.guild.id}}} ,{attributes: ["name", "key"]});
-                itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.like]:channel.guild.id}}} ,{attributes: ["name", "key"]});
-            }
-            if(contList.length < 8)
-            {
-                sentMessage = "Yeterli savaşçıya sahip değilsiniz. _(En az 8)_";
-            }
-            else
-            {
-                let resultString = "|";
-                let newContList = []
-                for(let i = 0; i < 8; i++)
-                {
-                    let selectedIndex = Math.floor(Math.random() * contList.length);
-                    let selectedContender = contList[selectedIndex];
-                    let itemKey = "";
-                    if(Math.random() * 100 > 20 && itemList.length > 0)
-                    {
-                        let selectedItemIndex = Math.floor(Math.random() * itemList.length);
-                        itemKey = itemList[selectedItemIndex].key;
-                        itemList.splice(selectedItemIndex, 1);
-                    }
-                    newContList.push(selectedContender);
-                    contList.splice(selectedIndex, 1);
-                    if(i != 0)
-                        resultString += "^";
-                    resultString += selectedContender.name + "["+itemKey+"]";
-                }
-                await Tournaments.update({contenders: resultString, status: 1}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
-                await ShowTournamentStatus(true);
-                if(tournamentJob != null)
-                {
-                    tournamentJob.stop();
-                    tournamentJob = null;
-                }
-                tournamentJob = new cron.CronJob(CRON_STR, MakeTournamentVersus);
-                tournamentJob.start();
-            }
+            await StartTournament(afterCommand);
         }
         else if(tournament.status == 2)
         {
@@ -629,6 +583,19 @@ client.on("message", async mess=>{
             }
             tournamentJob = new cron.CronJob(CRON_STR, MakeTournamentVersus);
             tournamentJob.start();
+        }
+    }
+    else if(command="turnuvatekrar" && mess.member.hasPermission("ADMINISTRATOR"))
+    {
+        
+        let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        if(tournament == null)
+        {
+            sentMessage = "Turnuva kanalını seçin!";
+        }
+        else
+        {
+            await StartTournament(afterCommand);
         }
     }
     else if(command=="debug_turnuva" && mess.member.hasPermission("ADMINISTRATOR"))
@@ -744,6 +711,115 @@ client.on("ready", ()=>{
 
 var widthTable = [38, 277, 512, 749, 988, 1226, 1462, 1699, 160, 624, 1101, 1577, 377, 1321, 869];
 var heightTable = [855, 855, 855, 855, 855, 855, 855, 855, 610, 610, 610, 610, 263, 263, 31];
+
+async function StartTournament(afterCommand)
+{
+    let contList;
+    let itemList;
+    let specialToServer = false;
+    let words = [];
+    let currentWord = "";
+    for(let i = 0; i < afterCommand.length; i++)
+    {
+        let chr = wors.charAt(i);
+        if(chr == "*")
+        {
+            while(true)
+            {
+                i++;
+                chr = words.charAt(i);
+                if(chr == "*")
+                {
+                    words.push(currentWord);
+                    currentWord = "";
+                    break;
+                }
+                else
+                    currentWord += chr;
+            }
+        }
+        else if(chr == " " && currentWord.length > 0)
+        {
+            words.push(currentWord);
+            currentWord = "";
+        }
+    }
+
+    for(let i = 0; i < words.length; i++)
+    {
+        let w = words[i];
+        if(w == "-ss")
+        {
+            specialToServer = true;
+            words.splice(i,1);
+            break;
+        }
+    }
+
+    if(!specialToServer)
+    {
+        contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,guildid]}}} ,{attributes: ["name", "key"]});
+        itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,guildid]}}} ,{attributes: ["name", "key"]});
+    }
+    else
+    {
+        contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.like]:guildid}}} ,{attributes: ["name", "key"]});
+        itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.like]:guildid}}} ,{attributes: ["name", "key"]});
+    }
+    if(contList.length < 8)
+    {
+        sentMessage = "Yeterli savaşçıya sahip değilsiniz. _(En az 8)_";
+    }
+    else
+    {
+        let statedContenders = [];
+        for(let i = 0; i < words.length; i++)
+        {
+            let contName = words[i];
+            let cont = await FindContender(contName, guildid);
+            if(cont != null && (!specialToServer || cont.guildID == guildid))
+                statedContenders.push(cont);
+        }
+        if(statedContenders.length > 8)
+        {
+            let delCount = statedContenders.length - 8;
+            statedContenders.splice(8, delCount);
+        }
+        let resultString = "|";
+        let newContList = statedContenders;
+        for(let i = 0; i < 8; i++)
+        {
+            let alreadySelected = i < statedContenders.length;
+            let selectedIndex = Math.floor(Math.random() * contList.length);
+            let selectedContender = alreadySelected ? newContList[i] : contList[selectedIndex];
+            let itemKey = "";
+            if(Math.random() * 100 > 20 && itemList.length > 0)
+            {
+                let selectedItemIndex = Math.floor(Math.random() * itemList.length);
+                itemKey = itemList[selectedItemIndex].key;
+                itemList.splice(selectedItemIndex, 1);
+            }
+            
+            if(!alreadySelected)
+            {
+                newContList.push(selectedContender);
+                contList.splice(selectedIndex, 1);
+            }
+            if(i != 0)
+                resultString += "^";
+            resultString += selectedContender.name + "["+itemKey+"]";
+        }
+        await Tournaments.update({contenders: resultString, status: 1}, {where: {guildID: {[Sequelize.Op.like]:guildid}}});
+        await ShowTournamentStatus(true);
+        if(tournamentJob != null)
+        {
+            tournamentJob.stop();
+            tournamentJob = null;
+        }
+        tournamentJob = new cron.CronJob(CRON_STR, MakeTournamentVersus);
+        tournamentJob.start();
+    }
+}
 
 async function ShowTournamentStatus(sendToTargetChannel = true)
 {
