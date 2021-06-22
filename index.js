@@ -570,8 +570,18 @@ client.on("message", async mess=>{
         }
         else if(tournament.status == 0)
         {
-            let contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
-            let itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
+            let contList;
+            let itemList;
+            if(words.length == 1 || afterCommand != "-ss")
+            {
+                contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
+                itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.or]:[null,channel.guild.id]}}} ,{attributes: ["name", "key"]});
+            }
+            else
+            {
+                contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.like]:channel.guild.id}}} ,{attributes: ["name", "key"]});
+                itemList = await Items.findAll({where: {guildID: {[Sequelize.Op.like]:channel.guild.id}}} ,{attributes: ["name", "key"]});
+            }
             if(contList.length < 8)
             {
                 sentMessage = "Yeterli savaşçıya sahip değilsiniz. _(En az 16)_";
@@ -876,7 +886,7 @@ function ReassembleWords(wordArray, startIndex = 0)
 
 function ShowHelp()
 {
-    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!emoji <isim> -> Emoji gönderir. \n!emoji liste -> Mevcut emojileri listeler. \n!kino <film ismi> -> IMDb veritabanında bulduğu filmi döndürür (ŞU ANLIK KAPALI). \n!avatar <kullanıcıadı/id/etiket> Belirtilen üyenin profil resmini döndürür.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!ws <savaşçı1>;<eşya1>;<savaşçı2>;<eşya2> -> Belirtilen savaşçılar ve eşyalar ile versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n!turnuvadurum -> Mevcut turnuva durumunu gösterir.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.\n!savaşçıresmiekle <savaşçıismi> <url>\n!eşyaresmiekle <eşyakey> <url>\n!turnuvakanal <kanal> -> Turnuva sonuçlarının gönderileceği kanalı belirler.\n!turnuvabaşlat -> Turnuva başlatır.\n!turnuvaduraklat -> Başlamış turnuvayı duraklatır.\n!turnuvabitir -> Başlamış turnuvayı sonlandırır.```';
+    return helpText = '```!yardım -> Yardım\n!ehb <soru> -> Sorulan soruya "Evet, hayır, belki" diye cevap verir.\n!çıkrala <metin> -> Çıkralar.\n!can -> Can.\n!emoji <isim> -> Emoji gönderir. \n!emoji liste -> Mevcut emojileri listeler. \n!kino <film ismi> -> IMDb veritabanında bulduğu filmi döndürür (ŞU ANLIK KAPALI). \n!avatar <kullanıcıadı/id/etiket> Belirtilen üyenin profil resmini döndürür.\n!puanla <şey> -> Puanlar.\n!vs <rakip1>;<rakip2>;<rakip3>;......;<rakipn> -> Versus.\n!vs -> Veritabanındaki karakterlerle versus.\n!vs istek -> İstek sitesine yönlendirir.\n!ws <savaşçı1>;<eşya1>;<savaşçı2>;<eşya2> -> Belirtilen savaşçılar ve eşyalar ile versus.\n!savaşçılar -> Veritabanındaki versus katılımcılarını gösterir.\n!eşyalar -> Veritabanındaki eşyaları gösterir.\n!ayrıntılar <objeismi> -> Savaşçı/Eşyayla ilgili ayrıntılı bilgiler.\n!turnuvadurum -> Mevcut turnuva durumunu gösterir.\n\n\nYÖNETİCİLER TARAFINDAN UYGULANABİLİR KOMUTLAR\n!eşyaata -> Veritabanındaki eşyaları rastgele savaşçılara dağıtır.\n!eşyaekle "<eşyaanahtarı>" "<eşyaismi>" <güçeki> <zekaeki> <çeviklikeki> <karizmaeki> <sağlıkeki> -> Eşya oluşturur.\n!savaşçıekle "<savaşçıismi>" <güç> <zeka> <çeviklik> <karizma> <sağlık> -> Savaşçı oluşturur\n!sil <savaşçıismi/eşyaanahtarı> -> Belirtilen eşya/savaşçıyı siler.\n!savaşçıresmiekle <savaşçıismi> <url>\n!eşyaresmiekle <eşyakey> <url>\n!turnuvakanal <kanal> -> Turnuva sonuçlarının gönderileceği kanalı belirler.\n!turnuvabaşlat -> Turnuva başlatır.\n!turnuvabaşlat -ss -> Sadece sunucuya özel savaşçılarla turnuva başlatır.\n!turnuvaduraklat -> Başlamış turnuvayı duraklatır.\n!turnuvabitir -> Başlamış turnuvayı sonlandırır.```';
 }
 
 function SendMessage(message, channel)
@@ -919,37 +929,52 @@ async function MakeVersusTournament(contender1, contender2, item1=null, item2=nu
         stats2.char += item2.charisma;
         stats2.hp += item2.health;
     }
-    let turn = Math.floor(Math.random()*2);
-    while(stats1.hp > 0 && stats2.hp > 0)
+    let savedStats1HP = stats1.hp;
+    let savedStats2HP = stats2.hp;
+    let cont1Won = 0;
+    let cont2Won = 0;
+    for(let i = 0; i < 100; i++)
     {
-        turn = turn%2;
-        if(turn == 0)
+        stats1.hp = savedStats1HP;
+        stats2.hp = savedStats2HP;
+        let turn = Math.floor(Math.random()*2);
+        while(stats1.hp > 0 && stats2.hp > 0)
         {
-            let damage = stats1.strength + Math.floor(Math.random()*13);
-            let defence = Math.ceil((stats2.agi + stats2.char + stats2.int) / 5);
-            damage = Math.max(damage-defence, 0);
-            stats2.hp -= damage;
+            turn = turn%2;
+            if(turn == 0)
+            {
+                let damage = stats1.strength + Math.floor(Math.random()*13);
+                let defence = Math.ceil((stats2.agi + stats2.char + stats2.int) / 5);
+                damage = Math.max(damage-defence, 0);
+                stats2.hp -= damage;
+            }
+            else
+            {
+                let damage = stats2.strength + Math.floor(Math.random()*13);
+                let defence = Math.ceil((stats1.agi + stats1.char + stats1.int) / 5);
+                damage = Math.max(damage-defence, 0);
+                stats1.hp -= damage;
+            }
+            turn++;
         }
+        if(stats1.hp <= 0 && stats2.hp <= 0)
+            continue;
+        if(stats1.hp > 0)
+            cont1Won++;
         else
-        {
-            let damage = stats2.strength + Math.floor(Math.random()*13);
-            let defence = Math.ceil((stats1.agi + stats1.char + stats1.int) / 5);
-            damage = Math.max(damage-defence, 0);
-            stats1.hp -= damage;
-        }
-        turn++;
+            cont2Won++;
     }
     let result = new Array(4);
     let winner = contender1;
     let loser = contender2;
     let loseItem = item2;
     let winItem = item1;
-    if(stats1.hp > 0 || stats2.hp > 0)
+    if(cont1Won != cont2Won)
     {
-        winner = stats1.hp > 0 ? contender1 : contender2;
-        loser = stats1.hp > 0 ? contender2 : contender1;
-        winItem = stats1.hp > 0 ? item1 : item2;
-        loseItem = stats1.hp > 0 ? item2 : item1;
+        winner = cont1Won > cont2Won ? contender1 : contender2;
+        loser = cont1Won > cont2Won ? contender2 : contender1;
+        winItem = cont1Won > cont2Won ? item1 : item2;
+        loseItem = cont1Won > cont2Won ? item2 : item1;
     }
     let itemDesc = winItem != null ? winItem.name + " ile " : "";
     message += "SONUÇ: "+loser.name+", rakibi "+winner.name+" tarafından "+itemDesc+"öldürüldü.";
