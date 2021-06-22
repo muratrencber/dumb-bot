@@ -761,6 +761,13 @@ async function StartTournament(afterCommand)
         }
     }
 
+    let debug_str = "";
+    for(let i = 0; i <words.length; i++)
+    {
+        debug_str += i+ ": "+words[i] +"\n";
+    }
+    channel.send(debug_str);
+
     if(!specialToServer)
     {
         contList = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,guildid]}}} ,{attributes: ["name", "key"]});
