@@ -714,6 +714,7 @@ var heightTable = [855, 855, 855, 855, 855, 855, 855, 855, 610, 610, 610, 610, 2
 
 async function StartTournament(afterCommand)
 {
+    console.log("STARTING TORUNAMENT...");
     let contList;
     let itemList;
     let specialToServer = false;
@@ -836,6 +837,7 @@ async function StartTournament(afterCommand)
 
 async function ShowTournamentStatus(sendToTargetChannel = true)
 {
+    console.log("SHOWING TORUNAMENT STATUS...");
     let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:guildid}}});
     if(tournament != null)
     {
@@ -868,6 +870,7 @@ async function ShowTournamentStatus(sendToTargetChannel = true)
 
 async function MakeTournamentVersus()
 {
+    console.log("MAKING TORUNAMENT VERSUS...");
     let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:guildid}}});
     
     let targetChannel = channel;
