@@ -497,6 +497,7 @@ client.on("message", async mess=>{
         let existingContender = await FindContender(contenderName, guildid);
         if(existingContender != null && (existingContender.guildID == guildid || mess.member.id == MURAT_ID))
         {
+            console.log("SAVAŞÇI RESMİ DEĞİŞTİRİLİYOR, SAVAŞÇI: "+existingContender.name + ", URL: "+ url);
             await Contenders.update({imageURL: url}, {where: {name: existingContender.name, guildID: existingContender.guildID}});
             sentMessage = "Değiştirildi!";
         }
