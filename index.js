@@ -859,9 +859,10 @@ async function ShowTournamentStatus(sendToTargetChannel = true)
             let selectedElement = elements[i];
             let contenderName = selectedElement.split("[")[0];
             let selectedContender = contenders.find(c => c.name == contenderName);
-            if(selectedElement == null)
+            if(selectedElement == null || selectedContender == null)
                 continue;
             let selectedImage = await Canvas.loadImage(selectedContender.imageURL);
+            console.log("LOADED AVATAR "+ i +"...");
             context.drawImage(selectedImage, widthTable[i], heightTable[i], 183, 183);
         }
         console.log("DREW AVATARS...");
