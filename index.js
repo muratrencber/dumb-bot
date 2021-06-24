@@ -841,6 +841,7 @@ async function ShowTournamentStatus(sendToTargetChannel = true)
 {
     console.log("SHOWING TORUNAMENT STATUS...");
     let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:guildid}}});
+    let contenders = await Contenders.findAll({where: {guildID: {[Sequelize.Op.or]:[null,guildid]}}})
     if(tournament != null)
     {
         let originalString = tournament.contenders;
@@ -848,19 +849,22 @@ async function ShowTournamentStatus(sendToTargetChannel = true)
         let elements = tournamentString.split("^"); //183*182
         let canvas = Canvas.createCanvas(1920, 1080);
         let context = canvas.getContext('2d');
+        console.log("LOADING BACKGROUND IMAGES...");
         let background = await Canvas.loadImage('https://sunstruck.games/dumb/versus/background.jpg');
         let borders = await Canvas.loadImage('https://sunstruck.games/dumb/versus/borders.png');
+        console.log("LOADED IMAGES...");
         context.drawImage(background, 0, 0, 1920, 1080);
         for(let i = 0; i < elements.length; i++)
         {
             let selectedElement = elements[i];
             let contenderName = selectedElement.split("[")[0];
-            let selectedContender = await FindContender(contenderName, guildid);
+            let selectedContender = contenders.find(c => c.name == contenderName);
             if(selectedElement == null)
                 continue;
             let selectedImage = await Canvas.loadImage(selectedContender.imageURL);
             context.drawImage(selectedImage, widthTable[i], heightTable[i], 183, 183);
         }
+        console.log("DREW AVATARS...");
         context.drawImage(borders, 0, 0, 1920, 1080);
         let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'turnuvadurum.jpg');
         if(sendToTargetChannel)
