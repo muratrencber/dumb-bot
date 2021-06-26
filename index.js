@@ -558,7 +558,7 @@ client.on("message", async mess=>{
             await Tournaments.update({channel: targetChannelID}, {where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
         }
     }
-    else if(command=="turnuvabaşlat" && mess.member.hasPermission("ADMINISTRATOR"))
+    else if(command=="turnuvabaşlat")
     {
         console.log("TURNUVABAŞLAT KOMUTU ÇALIŞIYOR...");
         let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
