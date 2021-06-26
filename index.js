@@ -134,7 +134,7 @@ client.on("message", async mess=>{
     guildid = channel.guild.id;
     const message = mess.content;
     let trnmnt = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
-    if(message.charAt(0) != "!" || mess.author.id == BOT_ID || (trnmnt != null && trnmnt.channel == channel.id && mess.member.id != MURAT_ID))
+    if(message.charAt(0) != "!" || mess.author.id == BOT_ID)
     {
         return;
     }
@@ -145,6 +145,8 @@ client.on("message", async mess=>{
     let command = words[0].toLowerCase();
     let afterCommand = ReassembleWords(words, 1);
     let sentMessage = "";
+    if(trnmnt != null && trnmnt.channel == channel.id && !mess.member.hasPermission("ADMINISTRATOR") && command != "turnuvatekrar" && command != "turnuvabaşlat")
+        return;
     if(command == "ehb" && words.length > 1){
         sentMessage=ehb.EHB();
     }
@@ -587,7 +589,7 @@ client.on("message", async mess=>{
             tournamentJob.start();
         }
     }
-    else if(command == "turnuvatekrar" && mess.member.hasPermission("ADMINISTRATOR"))
+    else if(command == "turnuvatekrar")
     {
         console.log("TURNUVATEKRAR KOMUTU ÇALIŞIYOR...");
         let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
@@ -597,7 +599,8 @@ client.on("message", async mess=>{
         }
         else
         {
-            await StartTournament(afterCommand);
+            if(tournament.status == 0 || mess.member.hasPermission("ADMINISTRATOR"))
+                await StartTournament(afterCommand);
         }
     }
     else if(command=="debug_turnuva" && mess.member.hasPermission("ADMINISTRATOR"))
