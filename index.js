@@ -564,6 +564,7 @@ client.on("message", async mess=>{
     {
         console.log("TURNUVABAŞLAT KOMUTU ÇALIŞIYOR...");
         let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        console.log("SUNUCU TURNUVASI SEÇİLDİ...");
         if(tournament == null)
         {
             sentMessage = "Turnuva kanalını seçin!";
@@ -593,6 +594,7 @@ client.on("message", async mess=>{
     {
         console.log("TURNUVATEKRAR KOMUTU ÇALIŞIYOR...");
         let tournament = await Tournaments.findOne({where: {guildID: {[Sequelize.Op.like]:mess.guild.id}}});
+        console.log("SUNUCU TURNUVASI SEÇİLDİ...");
         if(tournament == null)
         {
             sentMessage = "Turnuva kanalını seçin!";
