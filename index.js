@@ -2,6 +2,8 @@ const Discord=require("discord.js");
 const Canvas = require('canvas');
 const Sequelize=require("sequelize");
 const cron = require('cron');
+const CanvasText = require('node-canvas-text');
+const OpenType = require('opentype.js');
 
 const CRON_STR = process.env.TOURNAMENT_JOB || "30 * * * * *";
 const client=new Discord.Client();
@@ -127,6 +129,7 @@ const Items = sequelize.define("items", {
 
 client.once("ready", ()=>{
     sequelize.sync({alter: true});
+
 });
 
 client.on("message", async mess=>{
@@ -695,6 +698,21 @@ client.on("message", async mess=>{
         context.drawImage(flop, 960, 0, 960, 1080);
         context.drawImage(profilePicture, 0, 0, 960, 1080);
         context.drawImage(heart, 789, 360, 360, 360);
+        let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'flop.jpg');
+        channel.send("F L O P L A N D I N", attachment);
+    }
+    else if(command == "avg")
+    {
+        let soyFont = OpenType.loadSync('https://sunstruck.games/dumb/soy.ttf');
+        let chadFont = OpenType.loadSync('https://sunstruck.games/dumb/chad.ttf');
+        let canvas = Canvas.createCanvas(750, 553);
+        let context = canvas.getContext('2d');
+        let bg = await Canvas.loadImage('https://sunstruck.games/dumb/509.png');
+        context.drawImage(bg, 0, 0, 750, 553);
+        let text1 = afterCommand.split(",")[0].trim();
+        let text2 = afterCommand.split(",")[1].trim();
+        CanvasText.drawText(context, text1, soyFont, {x: 5, y: 103, width: 355, height: 255}, {vAlign: 'center', hAlign: 'center', fitMethod: 'box', minSize: 5, maxSize: 100});
+        CanvasText.drawText(context, text2, chadFont, {x: 390, y: 103, width: 345, height: 255}, {vAlign: 'center', hAlign: 'center', fitMethod: 'box', minSize: 5, maxSize: 100});
         let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'flop.jpg');
         channel.send("F L O P L A N D I N", attachment);
     }
