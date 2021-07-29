@@ -712,10 +712,11 @@ client.on("message", async mess=>{
         for(let i = 0; i < sizes.length; i++)
         {
             let size = sizes[i];
-            if(TryFit(context, soyRect, soyLine, size, "Arial"))
+            let tryResult = TryFit(context, soyRect, soyLine, size, "Arial");
+            if(tryResult.result)
             {
                 console.log("SUCCEDED SOY TEXT FOR SIZE: "+size);
-                DrawTextToRect(context, soyRect, soyLine, size, "Arial");
+                DrawTextToRect(context, soyRect, soyLine, size, "Arial", tryResult.linecount);
                 successfull = true;
                 break;
             }
@@ -727,10 +728,11 @@ client.on("message", async mess=>{
             for(let i = 0; i < sizes.length; i++)
             {
                 let size = sizes[i];
-                if(TryFit(context, chadRect, chadLine, size, "Times New Roman"))
+                let tryResult = TryFit(context, chadRect, chadLine, size, "Times New Roman");
+                if(tryResult.result)
                 {
                     console.log("SUCCEDED CHAD TEXT FOR SIZE: "+size);
-                    DrawTextToRect(context, chadRect, chadLine, size, "Times New Roman");
+                    DrawTextToRect(context, chadRect, chadLine, size, "Times New Roman", tryResult.linecount);
                     successfull = true;
                     break;
                 }
@@ -785,21 +787,22 @@ function TryFit(ctx, rect, text, size, font)
     {
         let txt = ctx.measureText(words[i] + (i == words.length - 1 ? "" : " "));
         if(txt.width > rect.width)
-            return false;
+            return {result: false};
         if(currentLineWidth + txt.width > rect.width)
         {
             lineCount++;
             if(lineCount > maxLineCount)
-                return false;
+                return {result: false};
             currentLineWidth = 0;
+            i--;
         }
         else
             currentLineWidth += txt.width;
     }
-    return true;
+    return {result: true, linecount: lineCount};
 }
 
-function DrawTextToRect(ctx, rect, text, size, font)
+function DrawTextToRect(ctx, rect, text, size, font, lc)
 {
     ctx.font = size+"px "+font;
     ctx.fillStyle = 'black';
@@ -807,19 +810,21 @@ function DrawTextToRect(ctx, rect, text, size, font)
     let currentLineWidth = 0;
     let lineCount = 1;
     let currentText = "";
+    let yOffset = (rect.height - ((lc * size) + (lineSpace * (lc - 1)))) / 2;
     for(let i = 0; i < words.length; i++)
     {
         let txt = ctx.measureText(words[i] + (i == words.length - 1 ? "" : " "));
         if(currentLineWidth + txt.width > rect.width)
         {
             let x = rect.x + ((rect.width - currentLineWidth) / 2);
-            let y = rect.y + (lineCount * (size + lineSpace));
+            let y = rect.y + yOffset + (lineCount * (size + lineSpace));
             console.log("INSERTING TEXT: \""+currentText+"\" to POSITION: ("+x+","+y+")");
             ctx.fillText(currentText, x, y);
 
             lineCount++;
             currentText = "";
             currentLineWidth = 0;
+            i--;
         }
         else
         {
@@ -832,7 +837,7 @@ function DrawTextToRect(ctx, rect, text, size, font)
             {
                 currentText += words[i];
                 let x = rect.x + ((rect.width - currentLineWidth) / 2);
-                let y = rect.y + (lineCount * (size + lineSpace));
+                let y = rect.y + yOffset + (lineCount * (size + lineSpace));
                 console.log("INSERTING TEXT: \""+currentText+"\" to POSITION: ("+x+","+y+")");
                 ctx.fillText(currentText, x, y);
             }
