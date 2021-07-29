@@ -707,7 +707,7 @@ client.on("message", async mess=>{
         context.drawImage(template, 0, 0, 750, 553);
         let soyLine = afterCommand.split(";")[0];
         let chadLine = afterCommand.split(";")[1];
-        let soyRect = {x: 6, y: 452, width: 350, height: 95};
+        let soyRect = {x: 6, y: 5, width: 350, height: 95};
         let successfull = false;
         for(let i = 0; i < sizes.length; i++)
         {
@@ -723,7 +723,7 @@ client.on("message", async mess=>{
         if(successfull)
         {
             successfull = false;
-            let chadRect = {x: 390, y: 452, width: 345, height: 95};
+            let chadRect = {x: 390, y: 5, width: 345, height: 95};
             for(let i = 0; i < sizes.length; i++)
             {
                 let size = sizes[i];
@@ -813,7 +813,7 @@ function DrawTextToRect(ctx, rect, text, size, font)
         if(currentLineWidth + txt.width > rect.width)
         {
             let x = rect.x + ((rect.width - currentLineWidth) / 2);
-            let y = rect.y + rect.height - (lineCount * (size + lineSpace));
+            let y = rect.y + (lineCount * (size + lineSpace));
             console.log("INSERTING TEXT: \""+currentText+"\" to POSITION: ("+x+","+y+")");
             ctx.fillText(currentText, x, y);
 
@@ -832,7 +832,7 @@ function DrawTextToRect(ctx, rect, text, size, font)
             {
                 currentText += words[i];
                 let x = rect.x + ((rect.width - currentLineWidth) / 2);
-                let y = rect.y + rect.height - (lineCount * (size + lineSpace));
+                let y = rect.y + (lineCount * (size + lineSpace));
                 console.log("INSERTING TEXT: \""+currentText+"\" to POSITION: ("+x+","+y+")");
                 ctx.fillText(currentText, x, y);
             }
