@@ -830,6 +830,7 @@ function DrawTextToRect(ctx, rect, text, size, font)
             }
             else
             {
+                currentText += words[i];
                 let x = rect.x + ((rect.width - currentLineWidth) / 2);
                 let y = rect.y + rect.height - (lineCount * (size + lineSpace));
                 console.log("INSERTING TEXT: \""+currentText+"\" to POSITION: ("+x+","+y+")");
