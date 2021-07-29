@@ -698,6 +698,56 @@ client.on("message", async mess=>{
         let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'flop.jpg');
         channel.send("F L O P L A N D I N", attachment);
     }
+    else if(command == "avg")
+    {
+        let canvas = Canvas.createCanvas(750, 553);
+        let context = canvas.getContext('2d');
+        let sizes = [32, 28, 24, 22, 20, 18, 16, 12, 8];
+        let template = await Canvas.loadImage('https://sunstruck.games/dumb/509.png');
+        context.drawImage(template, 0, 0, 750, 553);
+        let soyLine = afterCommand.split(";")[0];
+        let chadLine = afterCommand.split(";")[1];
+        let soyRect = {x: 6, y: 452, width: 350, height: 95};
+        let successfull = false;
+        for(let i = 0; i < sizes.length; i++)
+        {
+            let size = sizes[i];
+            if(TryFit(context, soyRect, soyLine, size, "Arial"))
+            {
+                DrawTextToRect(context, soyRect, soyLine, size, "Arial");
+                successfull = true;
+                break;
+            }
+        }
+        if(successfull)
+        {
+            successfull = false;
+            let chadRect = {x: 390, y: 452, width: 345, height: 95};
+            for(let i = 0; i < sizes.length; i++)
+            {
+                let size = sizes[i];
+                if(TryFit(context, chadRect, chadLine, size, "Times New Roman"))
+                {
+                    DrawTextToRect(context, chadRect, chadLine, size, "Times New Roman");
+                    successfull = true;
+                    break;
+                }
+            }
+            if(successfull)
+            {
+                let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'sj.jpg');
+                channel.send("!", attachment);
+            }
+            else
+            {
+                sentMessage = "Metin sığdırılamadı!";
+            }
+        }
+        else
+        {
+            sentMessage = "Metin sığdırılamadı!";
+        }
+    }
     if(sentMessage!="")
         SendMessage(sentMessage, channel);
 })
@@ -719,6 +769,66 @@ client.on("ready", ()=>{
 
 var widthTable = [38, 277, 512, 749, 988, 1226, 1462, 1699, 160, 624, 1101, 1577, 377, 1321, 869];
 var heightTable = [855, 855, 855, 855, 855, 855, 855, 855, 610, 610, 610, 610, 263, 263, 31];
+
+const lineSpace = 3;
+function TryFit(ctx, rect, text, size, font)
+{
+    ctx.font = size+"px "+font;
+    let words = text.split(" ");
+    let currentLineWidth = 0;
+    let lineCount = 1;
+    let fullText = ctx.measureText(text);
+    let maxLineCount = math.floor(rect.height / (fullText.height + lineSpace));
+    for(let i = 0; i < words.length; i++)
+    {
+        let txt = ctx.measureText(words[i] + (i == words.length - 1 ? "" : " "));
+        if(txt.width > rect.width)
+            return false;
+        if(currentLineWidth + txt.width > rect.width)
+        {
+            lineCount++;
+            if(lineCount > maxLineCount)
+                return false;
+            currentLineWidth = 0;
+        }
+        else
+            currentLineWidth += txt.width;
+    }
+    return true;
+}
+
+function DrawTextToRect(ctx, rect, text, size, font)
+{
+    ctx.font = size+"px "+font;
+    let words = text.split(" ");
+    let currentLineWidth = 0;
+    let lineCount = 1;
+    let currentText = "";
+    for(let i = 0; i < words.length; i++)
+    {
+        let txt = ctx.measureText(words[i] + (i == words.length - 1 ? "" : " "));
+        if(currentLineWidth + txt.width > rect.width)
+        {
+            ctx.fillText(currentText, rect.x + ((rect.width - currentLineWidth) / 2), rect.y + rect.height - (lineCount * (size + lineSpace)));
+
+            lineCount++;
+            currentText = "";
+            currentLineWidth = 0;
+        }
+        else
+        {
+            currentLineWidth += txt.width;
+            if(i != words.length - 1)
+            {
+                currentText += words[i] + " ";
+            }
+            else
+            {
+                ctx.fillText(currentText, rect.x + ((rect.width - currentLineWidth) / 2), rect.y + rect.height - (lineCount * (size + lineSpace)));
+            }
+        }
+    }
+}
 
 async function StartTournament(afterCommand)
 {
