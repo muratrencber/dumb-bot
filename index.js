@@ -778,7 +778,7 @@ function TryFit(ctx, rect, text, size, font)
     let currentLineWidth = 0;
     let lineCount = 1;
     let fullText = ctx.measureText(text);
-    let maxLineCount = math.floor(rect.height / (fullText.height + lineSpace));
+    let maxLineCount = Math.floor(rect.height / (fullText.height + lineSpace));
     for(let i = 0; i < words.length; i++)
     {
         let txt = ctx.measureText(words[i] + (i == words.length - 1 ? "" : " "));
