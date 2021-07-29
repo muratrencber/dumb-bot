@@ -800,6 +800,7 @@ function TryFit(ctx, rect, text, size, font)
 function DrawTextToRect(ctx, rect, text, size, font)
 {
     ctx.font = size+"px "+font;
+    ctx.fillStyle = 'black';
     let words = text.split(" ");
     let currentLineWidth = 0;
     let lineCount = 1;
