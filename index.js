@@ -714,6 +714,7 @@ client.on("message", async mess=>{
             let size = sizes[i];
             if(TryFit(context, soyRect, soyLine, size, "Arial"))
             {
+                console.log("SUCCEDED SOY TEXT FOR SIZE: "+size);
                 DrawTextToRect(context, soyRect, soyLine, size, "Arial");
                 successfull = true;
                 break;
@@ -728,6 +729,7 @@ client.on("message", async mess=>{
                 let size = sizes[i];
                 if(TryFit(context, chadRect, chadLine, size, "Times New Roman"))
                 {
+                    console.log("SUCCEDED CHAD TEXT FOR SIZE: "+size);
                     DrawTextToRect(context, chadRect, chadLine, size, "Times New Roman");
                     successfull = true;
                     break;
@@ -810,7 +812,10 @@ function DrawTextToRect(ctx, rect, text, size, font)
         let txt = ctx.measureText(words[i] + (i == words.length - 1 ? "" : " "));
         if(currentLineWidth + txt.width > rect.width)
         {
-            ctx.fillText(currentText, rect.x + ((rect.width - currentLineWidth) / 2), rect.y + rect.height - (lineCount * (size + lineSpace)));
+            let x = rect.x + ((rect.width - currentLineWidth) / 2);
+            let y = rect.y + rect.height - (lineCount * (size + lineSpace));
+            console.log("INSERTING TEXT: \""+currentText+"\" to POSITION: ("+x+","+y+")");
+            ctx.fillText(currentText, x, y);
 
             lineCount++;
             currentText = "";
@@ -825,7 +830,10 @@ function DrawTextToRect(ctx, rect, text, size, font)
             }
             else
             {
-                ctx.fillText(currentText, rect.x + ((rect.width - currentLineWidth) / 2), rect.y + rect.height - (lineCount * (size + lineSpace)));
+                let x = rect.x + ((rect.width - currentLineWidth) / 2);
+                let y = rect.y + rect.height - (lineCount * (size + lineSpace));
+                console.log("INSERTING TEXT: \""+currentText+"\" to POSITION: ("+x+","+y+")");
+                ctx.fillText(currentText, x, y);
             }
         }
     }
