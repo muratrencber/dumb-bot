@@ -10,6 +10,7 @@ const dict = {
     "ege2": "ege2.png",
     "cumut": "cumut.gif",
     "ekşi": "eksi.png",
+    "çekirge": "cekirge.jpg"
 }
 
 module.exports=
