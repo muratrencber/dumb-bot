@@ -9,8 +9,7 @@ const dict = {
     "ege1": "ege1.png",
     "ege2": "ege2.png",
     "cumut": "cumut.gif",
-    "ekşi": "eksi.png",
-    "çekirge": "cekirge.jpg"
+    "ekşi": "eksi.png"
 }
 
 module.exports=
@@ -18,6 +17,7 @@ module.exports=
     
     GetImageLink: function(key)
     {
+        key = ConvertKey(key);
         let imgStr = "";
         try
         {
@@ -76,4 +76,9 @@ function DoesURLExist(url)
 {
     const exists = urlExist(url);
     return exists;
+}
+
+function ConvertKey(char)
+{
+    return char.replace("ç","c").replace("ş","s").replace("ö","o").replace("ı","i").replace("ü","u").replace("ğ","g").replace("İ","I");
 }
